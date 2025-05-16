@@ -17,6 +17,9 @@ import '../css/app.less';
 // Import App Component
 import App from '../components/app.vue';
 
+// Import Tailwind CSS
+import '@/assets/app.css';
+
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
