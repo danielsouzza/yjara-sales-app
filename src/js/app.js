@@ -20,6 +20,9 @@ import App from '../components/app.vue';
 // Import Tailwind CSS
 import '@/assets/app.css';
 
+// Import Mask
+import maskDoc from '../directives/maskDoc'
+
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
@@ -28,6 +31,10 @@ const app = createApp(App);
 
 // Register Framework7 Vue components
 registerComponents(app);
+
+
+// Use maskDoc
+app.directive('mask-doc', maskDoc)
 
 // Mount the app
 app.mount('#app');

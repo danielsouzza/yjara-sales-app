@@ -23,7 +23,7 @@
     </div>
     <div class="rodape-cartao">
       <span class="embarcacao">{{ viagem.embarcacao }}</span>
-      <span class="preco">{{ viagem.valor }}</span>
+      <span class="preco">{{formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}}<span class="tw-text-p tw-text-[10px]"> no PIX</span></span>
     </div>
     <f7-button
         class="btn-selecionar-comodo"
@@ -35,8 +35,16 @@
 </template>
 
 <script setup>
-import { formatarTempoViagem } from '@/js/utils';
-const props = defineProps(['viagem']);
+import { formatarTempoViagem ,formatCurrency, calcularValor, formatMoney} from '@/js/utils';
+import { computed } from 'vue';
+
+
+const props = defineProps({
+  viagem: {
+    type: Object,
+    required: true
+  }
+});
 const emit = defineEmits(['selecionar']);
 function formatarData(data) {
   return new Date(data).toLocaleDateString('pt-BR', {
@@ -47,6 +55,11 @@ function formatarData(data) {
     minute: '2-digit'
   });
 }
+
+const valor = computed(()=>{
+  return formatMoney(props.viagem?.valor) + formatMoney(props.viagem?.taxa_de_embarque);
+})
+
 function selecionarViagem() {
   emit('selecionar', props.viagem);
 }
@@ -60,7 +73,6 @@ function selecionarViagem() {
   padding: 24px 20px;
   color: #222;
   width: fill;
-  max-width: 500px;
   margin: 0 auto;
 }
 .localidades {

@@ -6,5 +6,5 @@ export const ComodoService = {
   getComodosLivres: (params = {}) => api.get('api/comodos/livres-por-tipo', { params }),
   iniciarVenda: (params = {}) => api.post('api/reservas/comecar-venda', params),
   reservarComodo: (params = {}) => api.post('api/reservas/comodo', params),
-  deletarReserva: (params = {}) => api.delete('api/reservas/comodo', params)
+  deletarReserva: (params = {}) => api.delete('api/reservas/comodo', {data: params})
 }; 

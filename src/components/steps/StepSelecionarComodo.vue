@@ -1,6 +1,7 @@
 <template>
-  <f7-page>
-    <div class="comodo-container">
+  <div class="tw-flex tw-flex-col tw-items-center tw-w-full">
+    <div class="comodo-container !tw-mx-4">
+     
     <div class="comodo-header">
       <div>
         <strong>{{ viagem.municipio_origem.nome }}/{{ viagem.municipio_origem.uf }}</strong>
@@ -20,27 +21,21 @@
       </div>
     </div>
     <div class="tw-flex tw-flex-col lg:tw-flex-col-reverse tw-justify-center tw-items-center">
-      <f7-row>
-        <f7-col>
-          <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
-            <div class="my-badge !tw-bg-[#02bc6b]"></div>
-            Livre
-          </div>
-        </f7-col>
-        <f7-col>
-          <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
-            <div class="my-badge !tw-bg-[#3dccfd]"></div>
-            vendido
-          </div>
-        </f7-col>
-        <f7-col>
-          <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
-            <div class="my-badge !tw-bg-yellow-400"></div>
-            selecionado
-          </div>
-        </f7-col>
-      </f7-row>
-      <f7-container class="lg:!tw-max-w-[800px] tw-max-w-[350px] tw-px-0 tw-flex">
+      <div class="tw-grid tw-grid-cols-3 tw-gap-4 tw-mt-3">
+        <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
+          <div class="my-badge !tw-bg-[#02bc6b]"></div>
+          Livre
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
+          <div class="my-badge !tw-bg-[#3dccfd]"></div>
+          vendido
+        </div>
+        <div class="tw-flex tw-items-center tw-gap-1 tw-text-sm">
+          <div class="my-badge !tw-bg-yellow-400"></div>
+          selecionado
+        </div>
+      </div>
+      <div class=" lg:!tw-max-w-[800px] tw-max-w-[350px] tw-px-0  tw-flex ">
         <Boat v-if="matrizRooms?.length > 0" class="">
           <div :style="generateLayout()" class="tw-h-full">
             <div
@@ -53,73 +48,76 @@
               {{ comodo?.id ? (comodo.numeracao < 10 ? '0' + comodo.numeracao : comodo.numeracao) : '' }}
             </div>
           </div>
-          <div class="mt-2 lg:tw-hidden">
+          <div class="tw-mt-2 lg:tw-hidden">
             <div class="tw-flex tw-w-full tw-font-bold">Mais passageiros?</div>
             <div class="tw-text-p tw-text-sm">selecione outro cômodo.</div>
           </div>
         </Boat>
-        <f7-container v-if="hasCamarotesAndRede">
-          <f7-row>
+        <div v-if="hasCamarotesAndRede" class="tw-w-full">
+          <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4">
             <template v-for="item in viagem.tipos_comodos">
-              <f7-col v-if="item.id !== 4 && item.id !== 1" :key="item.id" cols="12" md="6" lg="4">
-                <f7-card
-                  class="!tw-border-4 !tw-border-blue-400"
-                  flat
+              <div v-if="item.id !== 4 && item.id !== 1" :key="item.id" class="tw-col-span-12 md:tw-col-span-6 lg:tw-col-span-4">
+                <div
+                  class="tw-bg-white tw-rounded-lg tw-shadow-md tw-border-4 tw-border-blue-400 tw-cursor-pointer"
+                  :class="roomsFree.find(it=>it.tipo_comodidade_id === item.id).quantidade > 0 ? 'hover:tw-shadow-lg' : 'tw-opacity-50 tw-cursor-not-allowed'"
                   @click="roomsFree.find(it=>it.tipo_comodidade_id === item.id).quantidade > 0 ? onClickRoom(null, item.id) : ''"
-                  :class="roomsSelected.selectedsByType?.find(it=>item.id == it.type_comodo_id)?.quantidade > 0 ? '!tw-bg-yellow-400' : roomsFree.find(it=>it.tipo_comodidade_id === item.id).quantidade === 0 ? '!tw-bg-[#3dccfd] tw-cursor-not-allowed' : '!tw-bg-[#02bc6b]'"
                 >
-                  <f7-row class="tw-p-3 !tw-text-white">
-                    <f7-col cols="8" class="tw-text-xs">
-                      {{item.nome}}
-                    </f7-col>
-                    <f7-col cols="4" class="tw-text-sm tw-flex tw-items-center tw-justify-end">
-                      <Icon icon="el:person" width="15" class="mr-1" />{{roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade}}
-                    </f7-col>
-                    <f7-col cols="6" class="tw-text-xs !tw-pt-0">
-                      Valor
-                    </f7-col>
-                    <f7-col cols="6" class="tw-text-right tw-text-sm tw-font-semibold !tw-pt-0">
-                      {{formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}}<br>
-                      <span class="tw-text-[10px]"> no PIX</span>
-                    </f7-col>
-                  </f7-row>
-                </f7-card>
-              </f7-col>
+                  <div class="tw-p-3 tw-text-white" :class="roomsSelected.selectedsByType?.find(it=>item.id == it.type_comodo_id)?.quantidade > 0 ? '!tw-bg-yellow-400' : roomsFree.find(it=>it.tipo_comodidade_id === item.id).quantidade === 0 ? '!tw-bg-[#3dccfd]' : '!tw-bg-[#02bc6b]'">
+                    <div class="tw-grid tw-grid-cols-12">
+                      <div class="tw-col-span-8 tw-text-xs">
+                        {{item.nome}}
+                      </div>
+                      <div class="tw-col-span-4 tw-text-sm tw-flex tw-items-center tw-justify-end">
+                        <f7-icon f7="person" width="15" class="mr-1" />{{roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade}}
+                      </div>
+                      <div class="tw-col-span-6 tw-text-xs !tw-pt-0">
+                        Valor
+                      </div>
+                      <div class="tw-col-span-6 tw-text-right tw-text-sm tw-font-semibold !tw-pt-0">
+                        {{formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}}<br>
+                        <span class="tw-text-[10px]"> no PIX</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </template>
-            <f7-col v-for="item in rooms[4]" cols="12" md="6" lg="4">
-              <f7-card
-                flat
+            <div v-for="item in rooms[4]" class="tw-col-span-12 md:tw-col-span-6 lg:tw-col-span-4">
+              <div
+                class="tw-bg-white tw-rounded-lg tw-shadow-md tw-cursor-pointer hover:tw-shadow-lg"
+                :class="(item.is_ocupado ? '!tw-bg-[#3dccfd] tw-cursor-not-allowed' : roomsSelected.selectedsById?.includes(item) ? '!tw-bg-yellow-400' : '!tw-bg-[#02bc6b]')"
                 @click="!item.is_ocupado ? onClickRoom(item, null) : ''"
-                  :class="(item.is_ocupado ? '!tw-bg-[#3dccfd] tw-cursor-not-allowed' : roomsSelected.selectedsById?.includes(item) ? '!tw-bg-yellow-400' : '!tw-bg-[#02bc6b]')"
               >
-                <f7-row class="tw-p-3 !tw-text-white">
-                  <f7-col cols="9" class="tw-text-xs">
-                    {{item.nome}}
-                  </f7-col>
-                  <f7-col cols="3" class="tw-text-sm tw-flex tw-items-center tw-justify-end">
-                    <Icon icon="el:person" width="15" class="mr-1" />{{item.quantidade}}
-                  </f7-col>
-                  <f7-col cols="6" class="tw-text-xs !tw-pt-0">
-                    Valor
-                  </f7-col>
-                  <f7-col cols="6" class="tw-text-right tw-text-sm tw-font-semibold !tw-pt-0">
-                    {{formatCurrency(calcularValor(item.comodo_trechos.valor + formatMoney(viagem.taxa_de_embarque), null))}}<br>
-                    <span class="tw-text-[10px]"> no PIX</span>
-                  </f7-col>
-                </f7-row>
-              </f7-card>
-            </f7-col>
-          </f7-row>
-        </f7-container>
-      </f7-container>
+                <div class="tw-p-3 tw-text-white">
+                  <div class="tw-grid tw-grid-cols-12">
+                    <div class="tw-col-span-9 tw-text-xs">
+                      {{item.nome}}
+                    </div>
+                    <div class="tw-col-span-3 tw-text-sm tw-flex tw-items-center tw-justify-end">
+                      <f7-icon f7="person" width="15" class="mr-1" />{{item.quantidade}}
+                    </div>
+                    <div class="tw-col-span-6 tw-text-xs !tw-pt-0">
+                      Valor
+                    </div>
+                    <div class="tw-col-span-6 tw-text-right tw-text-sm tw-font-semibold !tw-pt-0">
+                      {{formatCurrency(calcularValor(item.comodo_trechos.valor + formatMoney(viagem.taxa_de_embarque), null))}}<br>
+                      <span class="tw-text-[10px]"> no PIX</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <f7-divider :thickness="1" class="tw-border-opacity-100 tw-my-2 tw-hidden lg:tw-block mt-5"></f7-divider>
-    <f7-row>
-      <f7-col cols="12" md="12">
+   
+    <div class="tw-grid tw-grid-cols-12 tw-gap-4">
+      <div class="tw-col-span-12 md:tw-col-span-12">
         <div class="tw-flex tw-justify-center lg:tw-justify-start tw-w-full tw-font-bold">Cômodos selecionados</div>
         <div class="mt-3" v-if="roomsSelected.selectedsById?.length > 0">
-          <f7-row v-for="room in roomsSelected.selectedsById" :key="room.id" class="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-text-xs lg:tw-text-[16px] tw-text-p !tw-m-0">
-            <f7-col cols="8" class="tw-flex tw-items-center tw-gap-1 !tw-p-0">
+          <div v-for="room in roomsSelected.selectedsById" :key="room.id" class="tw-flex tw-justify-center tw-items-center tw-gap-1 tw-text-xs lg:tw-text-[16px] tw-text-p !tw-m-0">
+            <div class="tw-col-span-8 tw-flex tw-items-center tw-gap-1 !tw-p-0">
               <div v-if="room.tipo_comodidade_id == 1 || room.tipo_comodidade == 1" class="tw-flex tw-items-center tw-gap-1 !tw-p-0">
                 <div class="!tw-bg-yellow-400 tw-text-center tw-rounded-[5px] !tw-text-white tw-px-1 tw-py-[2px] my-1">
                   {{room.numeracao < 10 ? '0' + room.numeracao : room.numeracao}}
@@ -127,53 +125,77 @@
                 <span>{{room.tipo_comodidade.nome}}</span>
               </div>
               <div v-else class="tw-flex tw-items-center tw-gap-1 !tw-p-0">
-                <div class="!tw-bg-yellow-400 tw-text-center tw-rounded-[5px] !tw-text-white tw-px-1 tw-py-[4px] my-1">
+                <div class="!tw-bg-yellow-400 tw-text-center tw-rounded-[5px] !tw-text-white tw-px-1 tw-py-[2px] my-1">
                   {{room.nome}}
                 </div>
               </div>
-            </f7-col>
-            <f7-col class="tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">{{room.comodo_trechos?.valor ? formatCurrency(calcularValor(room.comodo_trechos?.valor + formatMoney(viagem.taxa_de_embarque))) : formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}} <Icon @click="onClickRoom(room, null)" icon="iconamoon:trash" width="25" class="tw-cursor-pointer ml-3 tw-text-red-500" /></f7-col>
-          </f7-row>
+            </div>
+            <div class="tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">
+              {{room.comodo_trechos?.valor ? formatCurrency(calcularValor(room.comodo_trechos?.valor + formatMoney(viagem.taxa_de_embarque))) : formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}}
+              <f7-icon f7="trash" @click="onClickRoom(room, null)" class="tw-cursor-pointer ml-3 tw-text-red-500" size="20px" />
+            </div>
+          </div>
         </div>
         <div class="mt-3" v-if="roomsSelected.selectedsByType?.length > 0">
-          <f7-row v-for="(room, i) in roomsSelected.selectedsByType" :key="i" class="tw-flex tw-justify-between tw-items-center tw-gap-1 lg:tw-text-[16px] tw-text-xs tw-text-p !tw-m-0">
-            <f7-col cols="3" class="tw-flex tw-items-center tw-gap-1 !tw-p-0">
+          <div v-for="(room, i) in roomsSelected.selectedsByType" :key="i" class="tw-flex tw-justify-between tw-items-center tw-gap-1 lg:tw-text-[16px] tw-text-xs tw-text-p !tw-m-0">
+            <div class="tw-col-span-3 tw-flex tw-items-center tw-gap-1 !tw-p-0">
               <div class="!tw-bg-yellow-400 tw-text-center tw-rounded-[5px] !tw-text-white tw-px-1 tw-py-[2px] my-1">
                 {{viagem.tipos_comodos.find(it=>it.id == room.type_comodo_id).nome}}
               </div>
-            </f7-col>
-            <f7-col cols="4" class="tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">
-              <Icon @click="decrementComodo(room.type_comodo_id)" icon="ph:minus-fill" width="20" class="mr-3 tw-cursor-pointer" /> {{ room.quantidade}} <Icon @click="incrementComodo(room.type_comodo_id)" icon="ph:plus-fill" width="20" class="ml-3 tw-cursor-pointer" />
-            </f7-col>
-            <f7-col cols="4" class="tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">
-              {{formatCurrency(room.quantidade * calcularValor(valor, viagem.desconto?.desconto))}} <Icon @click="onClickRoom(null, room.type_comodo_id)" icon="iconamoon:trash" width="25" class="tw-cursor-pointer ml-3 tw-text-red-500" />
-            </f7-col>
-          </f7-row>
+            </div>
+            <div class="tw-col-span-4 tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">
+              <f7-icon f7="minus" @click="decrementComodo(room.type_comodo_id)" class="mr-3 tw-cursor-pointer" size="20px" />
+              {{ room.quantidade}}
+              <f7-icon f7="plus" @click="incrementComodo(room.type_comodo_id)" class="ml-3 tw-cursor-pointer" size="20px" />
+            </div>
+            <div class="tw-col-span-4 tw-flex tw-items-center tw-gap-1 !tw-p-0 tw-justify-end">
+              {{formatCurrency(room.quantidade * calcularValor(valor, viagem.desconto?.desconto))}}
+              <f7-icon f7="trash" @click="onClickRoom(null, room.type_comodo_id)" class="tw-cursor-pointer ml-3 tw-text-red-500" size="20px" />
+            </div>
+          </div>
         </div>
         <div v-if="roomsSelected.selectedsByType?.length === 0 && roomsSelected.selectedsById?.length === 0" class="tw-flex tw-items-center tw-gap-1 tw-text-xs tw-text-p !tw-m-0">
           Nenhum cômodo selecionado
         </div>
-      </f7-col>
-      <f7-col cols="12" md="4" class="tw-hidden lg:tw-block">
+      </div>
+      <div class="tw-col-span-12 md:tw-col-span-4 tw-hidden lg:tw-block">
         <div class="tw-flex tw-justify-center lg:tw-justify-start tw-w-full tw-font-bold">Mais passageiros?</div>
         <div class="tw-text-p tw-text-xs">selecione outro cômodo.</div>
-      </f7-col>
-    </f7-row>
+      </div>
+    </div>
+
+    <div class="tw-flex tw-justify-center tw-mt-6 tw-gap-4">
+      <button
+          class="tw-bg-gray-200 tw-text-gray-700 tw-px-4 tw-py-2 tw-rounded-lg tw-font-medium hover:tw-bg-gray-300"
+          @click="$emit('voltar')"
+          type="button"
+        >
+          Voltar
+        </button>
+      <button 
+        class="tw-bg-blue-500 tw-text-white tw-px-6 tw-py-2 tw-rounded-lg tw-font-semibold hover:tw-bg-blue-600 disabled:tw-opacity-50 disabled:tw-cursor-not-allowed"
+        :disabled="loadingReserva || (roomsSelected.selectedsByType?.length === 0 && roomsSelected.selectedsById?.length === 0)"
+        @click="initSale"
+      >
+        {{ loadingReserva ? 'Carregando...' : 'Avançar' }}
+      </button>
+    
+    </div>
   </div>
 
 
     
     <f7-preloader v-if="loadingSets" />
   </div>
-  </f7-page>
-  
+  </div>
 </template>
 
 <script setup>
+import { f7Icon } from 'framework7-vue';
 import { formatarTempoViagem, formatDate, formatMoney, calcularValor, formatCurrency } from '@/js/utils';
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue';
 import { ComodoService } from '../../js/services/ComodoService';
-
+import Boat from '../Boat.vue';
 const props = defineProps({
   viagem: {
     type: Object,
@@ -181,6 +203,7 @@ const props = defineProps({
   }
 });
 
+const emit = defineEmits(['continue', 'voltar'])
 const loadingReserva = ref(false)
 const loadingSets = ref(false)
 const rooms = ref([])
@@ -289,6 +312,7 @@ function onClickRoom(room, type) {
       }
     }
   }catch (error){
+    console.log(error)
     showErrorNotification(error.message);
   }
 }
@@ -313,18 +337,19 @@ function decrementComodo(type) {
   }
 
   if(type_comodo.quantidade === 0){
-      roomsSelected.value[typeTravel].selectedsByType.splice(roomsSelected.value[typeTravel].selectedsByType.indexOf(type_comodo), 1)
+      roomsSelected.value.selectedsByType.splice(roomsSelected.value.selectedsByType.indexOf(type_comodo), 1)
   }
 }
 
 function postReserva(room){
   loadingReserva.value = true
-  const params = new URLSearchParams();
-  params.append('trecho_id',  props.viagem.id);
-  params.append('viagem_id',  props.viagem.id_viagem);
+  const params = {
+    trecho_id: props.viagem.id,
+    viagem_id: props.viagem.id_viagem,
+    comodo_id: room.id
+  }
 
-  params.append('comodo_id', room.id);
-  routes['rooms.reservas'](params).then((response) => {
+  ComodoService.reservarComodo(params).then((response) => {
     loadingReserva.value = false
   }).catch(error => {
     loadingReserva.value = false
@@ -335,21 +360,17 @@ function postReserva(room){
 }
 
 function deleteReserva(room){
-  routes['rooms.reservas.delete']({
-    data:{
-      trecho_id: props.viagem.id,
-      viagem_id: props.viagem.id_viagem,
-      comodo_ids:[room.id]
-
-    }
-  }).then((response) => {
-    if(response.data.success){
-      roomsSelected.value.selectedsById.splice(roomsSelected.value.selectedsById.indexOf(room), 1)
-    }
-  }).catch(error => {
+  const params = {
+    trecho_id: props.viagem.id,
+    viagem_id: props.viagem.id_viagem,
+    comodo_ids: [room.id]
+  }
+  ComodoService.deletarReserva(params).then((response) => {
     roomsSelected.value.selectedsById.splice(roomsSelected.value.selectedsById.indexOf(room), 1)
+  }).catch(error => {
     showErrorNotification(error.response.data.data.error);
   })
+
 }
 
 function qunatidadeTotalPassagens(){
@@ -365,7 +386,7 @@ function qunatidadeTotalPassagens(){
 }
 
 async  function initSale(){
-  const dataSale = null
+  let dataSale = null
   const tiposComodoEscolhidosIda = roomsSelected.value.selectedsByType.reduce((acc, item) => {
     acc[item.type_comodo_id] = item.quantidade;
     return acc;
@@ -376,28 +397,23 @@ async  function initSale(){
     'viagem_id': props.viagem.id_viagem,
     'tiposComodoEscolhidos': tiposComodoEscolhidosIda,
     'comodosAssentosEscolhidos': roomsSelected.value.selectedsById.map(item => item.id)
-
   };
-  loadingStore.startLoading();
 
- ComodoService.iniciarVenda(params).then((response) => {
+  loadingReserva.value = true;
+  ComodoService.iniciarVenda(params).then((response) => {
     const data = response.data.data;
     if(response.data.success){
-     dataSale = {
-       trecho: data.data.trecho,
-       rooms: data.data.comodos,
-       formas_pagamento: data.formas_pagamento,
-     }
-      // showSuccessNotification(response.data.message);
-      // onClickBtnSelect()
+      dataSale = {
+        trecho: data.data.trecho,
+        rooms: data.data.comodos,
+        formas_pagamento: data.formas_pagamento,
+      }
+      emit('continue', dataSale);
     }
   }).catch(error => {
-    loadingStore.stopLoading();
-    showErrorNotification(error.response.data.data.error);
-  })
-
-  loadingStore.stopLoading();
-  emit('continue', dataSale);
+  }).finally(() => {
+    loadingReserva.value = false;
+  });
 }
 
 function generateLayout() {
@@ -435,33 +451,30 @@ const updateWidth = () => {
   windowWidth.value = window.innerWidth;
   matrizRooms.value = allRooms(props.viagem, rooms.value);
 };
+
+
+window.addEventListener('resize', updateWidth);
 getQuantityRoomsFree()
 getRoomsByTrecho()
-onMounted(() => {
-  console.log('onMounted')
-  window.addEventListener('resize', updateWidth);
-  getQuantityRoomsFree()
-  getRoomsByTrecho()
-  
-});
-
-onBeforeUnmount(() => {
-  window.removeEventListener('resize', updateWidth);
-});
-
-
-
 
 </script>
 
 <style scoped>
+.my-badge {
+  width: 20px;
+  height: 20px;
+  background-color: #000;
+  border-radius: 30%;
+  display: inline-block;
+}
+
 .comodo-container {
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
   padding: 24px 20px;
+  width: 100%;
   color: #222;
-  max-width: 600px;
   margin: 24px auto;
 }
 .comodo-header {
