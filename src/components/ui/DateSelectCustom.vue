@@ -1,7 +1,7 @@
 <template>
   <div class="date-select-custom">
     <label v-if="label" class="date-select-label">{{ label }}</label>
-    <div class="date-select-input-wrapper" @click="toggleCalendar">
+    <div class="date-select-input-wrapper" @click="toggleCalendar($event)">
       <span class="date-select-icon">
         <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="gray" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
       </span>
@@ -55,7 +55,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue';
 import { format, startOfMonth, endOfMonth, getDay, addMonths, subMonths, isSameDay, isToday as isTodayFn, isBefore, parse, isValid } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import CustomSelect from './CustomSelect.vue';
@@ -86,7 +86,8 @@ function syncMonthYearFromDate(date) {
   selectedYear.value = date.getFullYear();
 }
 
-function toggleCalendar() {
+function toggleCalendar(event) {
+  event && event.stopPropagation();
   showCalendar.value = !showCalendar.value;
   syncMonthYearFromDate(calendarDate.value);
   if (showCalendar.value) {
@@ -111,8 +112,18 @@ function closeCalendar() {
   showCalendar.value = false;
 }
 
-onMounted(() => {
-  document.addEventListener('click', closeCalendar);
+watch(showCalendar, (val) => {
+  if (val) {
+    setTimeout(() => {
+      document.addEventListener('click', closeCalendar);
+    }, 0);
+  } else {
+    document.removeEventListener('click', closeCalendar);
+  }
+});
+
+onUnmounted(() => {
+  document.removeEventListener('click', closeCalendar);
 });
 
 function prevMonth(e) {
