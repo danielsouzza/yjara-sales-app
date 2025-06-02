@@ -146,7 +146,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, defineAsyncComponent, nextTick, computed } from 'vue';
+import { ref, onMounted, reactive, nextTick, computed } from 'vue';
 import { ViagemService } from '@/js/services/ViagemService';
 import { PedidoService } from '@/js/services/PedidoService';
 import StepEscolherViagem from '@/components/steps/StepEscolherViagem.vue';
@@ -156,7 +156,6 @@ import StepPagamento from '@/components/steps/StepPagamento.vue'
 import { formatMoney, formatDate } from '@/js/utils';
 import CustomSelect from '@/components/ui/CustomSelect.vue';
 import DateSelectCustom from '@/components/ui/DateSelectCustom.vue';
-import '@vuepic/vue-datepicker/dist/main.css';
 import Onboarding from '@/components/Onboarding.vue';
 import QuickDateSelector from '@/components/ui/QuickDateSelector.vue';
 
