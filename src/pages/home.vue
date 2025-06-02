@@ -37,7 +37,7 @@
           @onboarding-finish="handleOnboardingFinish"
         />
 
-        <div v-if="step === 1" class="tw-w-full  tw-px-4">
+        <div v-if="step === 1 && !showOnboarding" class="tw-w-full  tw-px-4">
           <QuickDateSelector
           v-model="form.data"
           :min-date="minDate"
