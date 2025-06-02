@@ -13,11 +13,11 @@
   
         <div class="resumo-linha">
          
-          <span class="resumo-label">Data e hora de embarque:</span>
+          <span class="resumo-label">Data de embarque:</span>
           <span class="resumo-info">{{ agrup.trecho_viagem?.data_embarque }}</span>
         </div>
         <div class="resumo-linha">
-          <span class="resumo-label">Tempo de viagem:</span>
+          <span class="resumo-label">Duração:</span>
           <span class="resumo-info">{{ agrup.trecho?.tempo_viagem }}</span>
         </div>
         <div class="resumo-linha">
@@ -59,15 +59,22 @@
       <!-- Escolha de pagamento moderna e compacta -->
       <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-4 tw-mb-6">
         <div
-          v-for="option in paymentOptions"
-          :key="option.value"
-          @click="paymentMethod = option.value"
-          :class="[ 'tw-cursor-pointer tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-flex tw-flex-col tw-items-center tw-relative tw-border', paymentMethod === option.value ? 'tw-border-primary tw-shadow' : 'tw-border-gray-200 hover:tw-border-primary/40']"
+          @click="paymentMethod = 'pix'"
+          :class="[ 'tw-cursor-pointer tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-flex tw-flex-col tw-items-center tw-relative tw-border', paymentMethod === 'pix' ? 'tw-border-primary tw-shadow' : 'tw-border-gray-200 hover:tw-border-primary/40']"
         >
-          <img :src="option.img" alt="" class="tw-mb-2 tw-h-7 tw-object-contain" />
-          <div class="tw-font-bold tw-text-base tw-mb-1">{{ option.label }}</div>
-          <div class="tw-text-xs tw-text-gray-500">{{ option.desc }}</div>
-          <span v-if="paymentMethod === option.value" class="tw-absolute tw-top-2 tw-right-2 tw-bg-primary tw-text-white tw-rounded-full tw-p-1 tw-shadow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+          <img src="@/assets/images/payment-pix.svg" alt="" class="tw-mb-2 tw-h-7 tw-object-contain" />
+          <div class="tw-font-bold tw-text-base tw-mb-1">Pix</div>
+          <div class="tw-text-xs tw-text-gray-500">Pague com Pix (QR Code ou Copia e Cola)</div>
+          <span v-if="paymentMethod === 'pix'" class="tw-absolute tw-top-2 tw-right-2 tw-bg-primary tw-text-white tw-rounded-full tw-p-1 tw-shadow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+        </div>
+        <div
+          @click="paymentMethod = 'credit'"
+          :class="[ 'tw-cursor-pointer tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-flex tw-flex-col tw-items-center tw-relative tw-border', paymentMethod === 'credit' ? 'tw-border-primary tw-shadow' : 'tw-border-gray-200 hover:tw-border-primary/40']"
+        >
+          <img src="@/assets/images/payment-credit-card.svg" alt="" class="tw-mb-2 tw-h-7 tw-object-contain" />
+          <div class="tw-font-bold tw-text-base tw-mb-1">Cartão de Crédito</div>
+          <div class="tw-text-xs tw-text-gray-500">Pague com cartão de crédito</div>
+          <span v-if="paymentMethod === 'credit'" class="tw-absolute tw-top-2 tw-right-2 tw-bg-primary tw-text-white tw-rounded-full tw-p-1 tw-shadow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
         </div>
       </div>
       <!-- Fim escolha moderna -->
