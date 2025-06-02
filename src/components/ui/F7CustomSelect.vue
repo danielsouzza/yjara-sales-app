@@ -77,7 +77,7 @@ const filteredOptions = computed(() => {
 })
 
 const selectedLabel = computed(() => {
-  const found = props.options.find(opt => opt.value === props.modelValue)
+  const found = props.options.find(opt => opt.value == props.modelValue)
   return found ? found.label : ''
 })
 
@@ -147,7 +147,7 @@ onBeforeUnmount(() => {
   min-height: 2.5rem;
   display: flex;
   align-items: center;
-  padding: 0.7rem 1rem 0.7rem 1rem;
+  padding: 0.1rem 1rem 0.1rem 1rem;
   font-size: 1rem;
   cursor: pointer;
   position: relative;

@@ -1,6 +1,4 @@
 import HomePage from '../pages/home.vue';
-import AboutPage from '../pages/about.vue';
-import FormPage from '../pages/form.vue';
 
 
 import DynamicRoutePage from '../pages/dynamic-route.vue';
@@ -11,17 +9,8 @@ var routes = [
   {
     path: '/',
     component: HomePage,
+    props: true
   },
-  {
-    path: '/about/',
-    component: AboutPage,
-  },
-  {
-    path: '/form/',
-    component: FormPage,
-  },
-
-
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,

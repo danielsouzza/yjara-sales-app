@@ -71,6 +71,7 @@
       </f7-view>
     </f7-login-screen>
   </f7-app>
+  <GlobalNotification />
 </template>
 <script>
   import { ref, onMounted } from 'vue';
@@ -79,8 +80,10 @@
 
   import routes from '../js/routes.js';
   import store from '../js/store';
+  import GlobalNotification from '@/components/ui/GlobalNotification.vue';
 
   export default {
+    components: { GlobalNotification },
     setup() {
 
       // Framework7 Parameters
@@ -102,14 +105,6 @@
         } : {},
       };
       // Login screen data
-      const username = ref('');
-      const password = ref('');
-
-      const alertLoginData = () => {
-        f7.dialog.alert('Username: ' + username.value + '<br>Password: ' + password.value, () => {
-          f7.loginScreen.close();
-        });
-      }
       onMounted(() => {
         f7ready(() => {
 
@@ -119,10 +114,7 @@
       });
 
       return {
-        f7params,
-        username,
-        password,
-        alertLoginData
+        f7params
       }
     }
   }

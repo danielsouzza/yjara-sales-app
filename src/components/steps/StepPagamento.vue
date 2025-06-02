@@ -1,130 +1,218 @@
 <template>
-  <div class="tw-max-w-2xl tw-mx-auto tw-bg-white tw-shadow tw-rounded-xl tw-p-6">
-    <h2 class="tw-text-2xl tw-font-bold tw-mb-6 tw-text-primary">Pagamento do Pedido</h2>
-    <!-- Card de Resumo -->
-    <div class="tw-bg-gray-50 tw-rounded-lg tw-shadow-sm tw-p-5 tw-mb-6">
-      <div class="tw-font-bold tw-text-gray-800 tw-mb-2">Resumo da Compra</div>
-      <div v-for="(agrup, idx) in order.passagens_agrupadas" :key="idx" class="tw-mb-4 tw-pb-4 tw-border-b tw-border-gray-200 last:tw-border-b-0">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-2 tw-text-sm tw-text-gray-700">
-          <div>
-            <div><span class="tw-font-semibold">Origem:</span> {{ agrup.trecho?.municipio_origem?.nome }}/{{ agrup.trecho?.municipio_origem?.uf }}</div>
-            <div><span class="tw-font-semibold">Destino:</span> {{ agrup.trecho?.municipio_destino?.nome }}/{{ agrup.trecho?.municipio_destino?.uf }}</div>
-            <div><span class="tw-font-semibold">Data:</span> {{ agrup.trecho_viagem?.data_embarque }}</div>
-          </div>
-          <div>
-            <div><span class="tw-font-semibold">Duração:</span> {{ agrup.trecho?.tempo_viagem }}h</div>
-            <div><span class="tw-font-semibold">Embarcação:</span> {{ agrup.viagem?.embarcacao?.nome }}</div>
-          </div>
+  <div class=" tw-mx-4 tw-bg-white tw-shadow tw-rounded-xl tw-px-4 tw-py-4">
+    <div class="tw-flex tw-justify-between tw-items-center tw-mb-6">
+    
+      <h2 class="tw-text-2xl tw-font-bold tw-text-primary">Pagamento do Pedido</h2>
+    </div>
+    <!-- Resumo mais clean -->
+    <div class="resumo-pagamento-card">
+      <div class="resumo-header">
+        <span class="resumo-title">Resumo da viagem</span>
+      </div>
+      <div class="resumo-bloco" v-for="(agrup, idx) in order.passagens_agrupadas":key="idx">
+  
+        <div class="resumo-linha">
+         
+          <span class="resumo-label">Data e hora de embarque:</span>
+          <span class="resumo-info">{{ agrup.trecho_viagem?.data_embarque }}</span>
         </div>
-        <div class="tw-mt-2">
-          <table class="tw-w-full tw-text-xs tw-mt-2">
-            <thead>
-              <tr class="tw-text-left tw-text-gray-600">
-                <th class="tw-py-1">Passageiro</th>
-                <th class="tw-py-1">Tipo</th>
-                <th class="tw-py-1">Valor un.</th>
-                <th class="tw-py-1">Taxa</th>
-                <th class="tw-py-1">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="pass in agrup.passagem_pedidos" :key="pass.id" class="tw-border-t tw-border-gray-100">
-                <td class="tw-py-1">{{ (pass.passageiro?.nome || '').split(' ')[0] }}</td>
-                <td class="tw-py-1">{{ pass.comodo?.tipo_comodidade?.nome }}</td>
-                <td class="tw-py-1">{{ formatCurrency(pass.valor) }}</td>
-                <td class="tw-py-1">{{ formatCurrency(pass.taxa_embarque) }}</td>
-                <td class="tw-py-1">{{ formatCurrency((pass.valor || 0) + (pass.taxa_embarque || 0)) }}</td>
-              </tr>
-            </tbody>
-          </table>
+        <div class="resumo-linha">
+          <span class="resumo-label">Tempo de viagem:</span>
+          <span class="resumo-info">{{ agrup.trecho?.tempo_viagem }}</span>
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Origem/Destino</span>
+          <span class="resumo-info">
+            {{ agrup.trecho?.municipio_origem?.nome }}/{{ agrup.trecho?.municipio_origem?.uf }}
+            <span class="resumo-seta">→</span>
+            {{ agrup.trecho?.municipio_destino?.nome }}/{{ agrup.trecho?.municipio_destino?.uf }}
+          </span>
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Tipo de assento:</span>
+          <span class="resumo-info">{{gerarStringTiposComodos(agrup.passagem_pedidos.map(it=>it.comodo.tipo_comodidade))}}</span> 
+        </div>
+        <div class="resumo-linha">
+          <span class="resumo-label">Embarcação:</span>
+          <span class="resumo-info">{{ agrup.viagem?.embarcacao?.nome }}</span>
         </div>
       </div>
-      <div class="tw-mt-4 tw-flex tw-flex-col md:tw-flex-row tw-gap-4 tw-items-center tw-justify-between">
-        <div class="tw-font-semibold">Total de passagens: <span class="tw-font-bold">{{ order.passagens_agrupadas.reduce((acc,agrup) => acc + agrup.passagem_pedidos.length, 0) }}</span></div>
-        <div class="tw-font-semibold">Total: <span class="tw-font-bold tw-text-primary">{{ formatCurrency(order.total) }}</span></div>
-      </div>
-      <div v-if="order.contato" class="tw-mt-4 tw-text-xs tw-text-gray-500">
-        <div><span class="tw-font-semibold">Contato:</span> {{ order.contato.nome }} | {{ order.contato.email }} | {{ order.contato.telefone }}</div>
+      
+      <div class="resumo-linha resumo-linha-total tw-w-full tw-flex tw-justify-between tw-items-center">
+        <span class="resumo-label ">Total:</span>
+        <span class="resumo-info resumo-total-valor">
+          <template v-if="paymentMethod === 'pix'">
+            {{ formatCurrency(order.total) }}
+          </template>
+          <template v-else>
+            {{ formatCurrency(totalComJuros) }}
+            <div class="resumo-pagamento-info">
+              <span v-if="cardData.installment_quantity > 1">
+                em {{ cardData.installment_quantity }}x de {{ formatCurrency(totalComJuros / cardData.installment_quantity) }}
+              </span>
+            </div>
+          </template>
+        </span>
       </div>
     </div>
-    <!-- Fim Card de Resumo -->
-
     <div v-if="currentStep === 1">
-      <div class="tw-mb-4">
-        <div>
-        <F7CustomSelect
-          v-model="paymentMethod"
-          label="Forma de pagamento"
-          placeholder="Selecione a forma de pagamento"
-          :options="[{value:'pix',label:'Pix'},{value:'credit',label:'Cartão de Crédito'}]"
-        />
+      <!-- Escolha de pagamento moderna e compacta -->
+      <div class="tw-grid tw-grid-cols-1 sm:tw-grid-cols-2 tw-gap-4 tw-mb-6">
+        <div
+          v-for="option in paymentOptions"
+          :key="option.value"
+          @click="paymentMethod = option.value"
+          :class="[ 'tw-cursor-pointer tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-flex tw-flex-col tw-items-center tw-relative tw-border', paymentMethod === option.value ? 'tw-border-primary tw-shadow' : 'tw-border-gray-200 hover:tw-border-primary/40']"
+        >
+          <img :src="option.img" alt="" class="tw-mb-2 tw-h-7 tw-object-contain" />
+          <div class="tw-font-bold tw-text-base tw-mb-1">{{ option.label }}</div>
+          <div class="tw-text-xs tw-text-gray-500">{{ option.desc }}</div>
+          <span v-if="paymentMethod === option.value" class="tw-absolute tw-top-2 tw-right-2 tw-bg-primary tw-text-white tw-rounded-full tw-p-1 tw-shadow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+        </div>
       </div>
-      </div>
+      <!-- Fim escolha moderna -->
       <div v-if="paymentMethod === 'pix'" class="tw-mb-4">
-        <button @click="submitPix" :disabled="loading" class="tw-bg-green-500 tw-text-white tw-px-4 tw-py-2 tw-rounded hover:tw-bg-green-600 tw-transition">
+        <button @click="submitPix" :disabled="loading" class="tw-bg-primary tw-text-white tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 disabled:tw-opacity-50 tw-transition">
           <span v-if="!loading">Gerar Pix</span>
           <span v-else>Gerando...</span>
         </button>
       </div>
       <div v-if="paymentMethod === 'credit'" class="tw-mb-4">
-        <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
-          <input v-model="cardData.holder" placeholder="Nome no cartão" class="tw-mb-2 tw-w-full tw-p-2 tw-border tw-rounded" />
-          <input v-model="cardData.card_number" placeholder="Número do cartão" maxlength="19" class="tw-mb-2 tw-w-full tw-p-2 tw-border tw-rounded" />
-          <input v-model="cardData.expiration_date" placeholder="Validade (MM/AA)" maxlength="5" class="tw-mb-2 tw-w-full tw-p-2 tw-border tw-rounded" />
-          <input v-model="cardData.security_code" placeholder="CVV" maxlength="4" class="tw-mb-2 tw-w-full tw-p-2 tw-border tw-rounded" />
-        </div>
-        <input v-model.number="cardData.installment_quantity" type="number" min="1" max="12" placeholder="Parcelas" class="tw-mb-2 tw-w-full tw-p-2 tw-border tw-rounded" />
-        <button @click="submitCredit" :disabled="loading" class="tw-bg-blue-500 tw-text-white tw-px-4 tw-py-2 tw-rounded hover:tw-bg-blue-600 tw-transition">
-          <span v-if="!loading">Pagar com Cartão</span>
-          <span v-else>Processando...</span>
-        </button>
+        <form @submit.prevent="submitCredit" class="tw-space-y-4 tw-mt-2 tw-bg-white tw-rounded-xl tw-shadow-sm tw-p-4 tw-max-w-md tw-mx-auto">
+          <div>
+            <label class="custom-select-label">Nome no cartão</label>
+            <div class="onboarding-search">
+              <span class="onboarding-search-icon">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+              </span>
+              <input v-model="cardData.holder" required placeholder="Digite o nome impresso no cartão" class="onboarding-search-input" />
+            </div>
+          </div>
+          <div>
+            <label class="custom-select-label">Número do cartão</label>
+            <div class="onboarding-search">
+              <span class="onboarding-search-icon">
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3" stroke="#A0AEC0" stroke-width="2"/><rect x="2" y="9" width="20" height="2" fill="#A0AEC0"/></svg>
+              </span>
+              <input v-model="cardData.card_number" required maxlength="19" placeholder="Número do cartão" class="onboarding-search-input" />
+            </div>
+          </div>
+          <div class="tw-grid tw-grid-cols-2 tw-gap-4">
+            <div>
+              <label class="custom-select-label">Validade</label>
+              <div class="onboarding-search">
+                <span class="onboarding-search-icon">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </span>
+                <input v-model="cardData.expiration_date" v-mask-doc="'##/####'" placeholder="MM/AA" class="onboarding-search-input" />
+              </div>
+            </div>
+            <div>
+              <label class="custom-select-label">CVV</label>
+              <div class="onboarding-search">
+                <span class="onboarding-search-icon">
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#A0AEC0" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#A0AEC0"/></svg>
+                </span>
+                <input v-model="cardData.security_code" required maxlength="4" placeholder="CVV" class="onboarding-search-input" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <label class="custom-select-label">Parcelas</label>
+            <CustomSelect
+                v-model="cardData.installment_quantity"
+                label=""
+                :searchable="false"
+                placeholder="Selecione as parcelas"
+                :options="pacerls.map(p => ({ value: p.value, label: `${p.value}x (${(p.percent * 100).toFixed(0)}% de juros)` }))"
+                :required="true"
+                class="onboarding-search-input tw-bg-transparent tw-border-none"
+              />
+          </div>
+          <div v-if="cardData.installment_quantity">
+            Valor total com juros: <b>{{ formatCurrency(totalComJuros) }}</b>
+          </div>
+          <button type="submit" :disabled="loading" class="tw-bg-primary tw-text-white tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 disabled:tw-opacity-50 tw-transition">
+            <span v-if="!loading">Pagar com Cartão</span>
+            <span v-else>Processando...</span>
+          </button>
+        </form>
       </div>
     </div>
 
     <div v-if="currentStep === 2">
       <div class="tw-flex tw-justify-center tw-flex-col tw-items-center">
-        <div class="tw-mb-4 tw-text-center">
+        <div class="tw-mb-4 tw-text-center tw-w-full">
           <div class="tw-text-lg tw-font-semibold tw-text-gray-700">Tempo restante para pagamento:</div>
-          <div class="tw-text-2xl tw-font-bold tw-text-primary">{{ formatTimeRemaining }}</div>
+          <div class="tw-text-2xl tw-font-bold tw-text-primary tw-mb-2">{{ formatTimeRemaining }}</div>
+          <div class="tw-w-full tw-bg-gray-200 tw-rounded-full tw-h-2.5">
+            <div class="tw-bg-primary tw-h-2.5 tw-rounded-full tw-transition-all tw-duration-1000" :style="{ width: `${(currentMinuteProgress / 60) * 100}%` }"></div>
+          </div>
         </div>
+
+        <div class="tw-w-full tw-max-w-md tw-mb-4">
+          <div class="tw-break-all tw-bg-gray-100 tw-p-3 tw-rounded-lg tw-text-center tw-text-sm tw-flex tw-items-center tw-justify-between tw-gap-2">
+            <span class="tw-text-gray-600">{{ truncatedPixCode }}</span>
+            <button @click="copiarPix" class="tw-bg-primary tw-text-white tw-px-4 tw-py-2 tw-rounded-lg tw-text-sm hover:tw-bg-primary/90 tw-transition tw-flex tw-items-center tw-gap-2">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+              </svg>
+              Copiar Pix
+            </button>
+          </div>
+        </div>
+
         <div class="tw-relative">
           <VueQrcode :value="paymentPending.pix_copia_cola" :size="200" />
           <div v-if="loading" class="tw-absolute tw-inset-0 tw-bg-white tw-bg-opacity-75 tw-flex tw-items-center tw-justify-center">
             <div class="tw-animate-spin tw-rounded-full tw-h-8 tw-w-8 tw-border-b-2 tw-border-primary"></div>
           </div>
         </div>
-        <div class="tw-mt-2 tw-text-xs tw-text-gray-600">Copie e pague no app do seu banco</div>
-        <div class="tw-mt-2 tw-break-all tw-bg-gray-100 tw-p-2 tw-rounded tw-text-center tw-text-sm">{{ paymentPending.pix_copia_cola }}</div>
+        <div class="tw-mt-4 tw-text-sm tw-text-gray-600">Escaneie o QR Code ou copie o código Pix acima</div>
+        
+        <button @click="voltar" class="tw-mt-6 tw-bg-white tw-text-primary tw-border tw-border-primary tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/5 disabled:tw-opacity-50 tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2">
+          <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+          </svg>
+          Voltar
+        </button>
       </div>
     </div>
 
     <div v-if="currentStep === 3">
       <div class="tw-flex tw-justify-center tw-flex-col tw-items-center tw-text-center">
-        <Icon icon="icon-park-outline:ticket" class="mr-2 tw-text-secondary !tw-text-[80px]" />
+        <!-- <Icon icon="icon-park-outline:ticket" class="mr-2 tw-text-secondary !tw-text-[80px]" /> -->
         <p class="tw-text-xl tw-text-secondary tw-font-bold my-2">Compra realizada com sucesso!</p>
         <p>Olá, {{ order.contato?.nome }}! <br> Sua passagem está confirmada e foi enviada para seu email e WhatsApp</p>
         <p><strong>Pedido {{ order.id }}</strong></p>
       </div>
     </div>
 
-    <div v-if="error" class="tw-text-red-500 tw-mt-2">{{ error }}</div>
-    <div v-if="success" class="tw-text-green-600 tw-mt-2">{{ success }}</div>
+    <!-- <div class="tw-flex tw-justify-center tw-mt-6 tw-gap-4">
+      <button @click="voltarParaDados" class="tw-bg-white tw-text-primary tw-border tw-border-primary tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/5 disabled:tw-opacity-50 tw-transition tw-flex tw-items-center tw-justify-center tw-gap-2">
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+        </svg>
+        Voltar para Dados
+      </button>
+    </div> -->
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { formatCurrency } from '@/js/utils'
-import F7CustomSelect from '../ui/F7CustomSelect.vue'
+import { formatCurrency, pacerls, gerarStringTiposComodos } from '@/js/utils'
+import CustomSelect from '../ui/CustomSelect.vue'
 import VueQrcode from 'vue-qrcode'
+
 import { PedidoService } from '@/js/services/PedidoService'
-import { Icon } from '@iconify/vue'
+
 
 const props = defineProps({
   order: Object
 })
 
-const emit = defineEmits(['update:step'])
+const emit = defineEmits(['update:step', 'voltar'])
 
 const currentStep = ref(1)
 const paymentMethod = ref('pix')
@@ -140,9 +228,31 @@ const cardData = ref({
   installment_quantity: 1
 })
 
+const paymentOptions = [
+  {
+    value: 'credit',
+    label: 'Cartão de Crédito',
+    desc: 'Pague com cartão de crédito',
+    img: '/assets/images/payment-credit-card.svg'
+  },
+  {
+    value: 'pix',
+    label: 'Pix',
+    desc: 'Pague com Pix (QR Code ou Copia e Cola)',
+    img: '/assets/images/payment-pix.svg'
+  }
+]
+
 const timeRemaining = ref(30 * 60)
 let timer = null
 let checkTimeout = null
+
+const currentMinuteProgress = ref(0)
+const truncatedPixCode = computed(() => {
+  if (!paymentPending.value?.pix_copia_cola) return ''
+  const code = paymentPending.value.pix_copia_cola
+  return code.slice(0, 20) + '...' + code.slice(-20)
+})
 
 const formatTimeRemaining = computed(() => {
   const minutes = Math.floor(timeRemaining.value / 60)
@@ -150,10 +260,18 @@ const formatTimeRemaining = computed(() => {
   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
 })
 
+function copiarPix() {
+  if (paymentPending.value?.pix_copia_cola) {
+    navigator.clipboard.writeText(paymentPending.value.pix_copia_cola)
+    window.$notify('Código Pix copiado!', 'success')
+  }
+}
+
 function startTimer() {
   timer = setInterval(() => {
     if (timeRemaining.value > 0) {
       timeRemaining.value--
+      currentMinuteProgress.value = (currentMinuteProgress.value + 1) % 60
     } else {
       clearInterval(timer)
       paymentPending.value = null
@@ -170,7 +288,7 @@ function clearCheckTimeout() {
 }
 
 function checkStatusPayment() {
-  PedidoService.checkPaymentStatus(props.order.id).then(res => {
+  PedidoService.paymentStatus(props.order.id).then(res => {
     if (res.data.success) {
       const orderStatus = res.data.data
       if (orderStatus.status === "Pago") {
@@ -192,6 +310,8 @@ function checkStatusPayment() {
   }).catch((error) => {
     paymentPending.value = null
     error.value = 'Erro ao verificar status do pagamento'
+    window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message,'error');
+
     currentStep.value = 1
     emit('update:step', 1)
   })
@@ -210,8 +330,9 @@ function submitPix() {
     emit('update:step', 2)
     startTimer()
     checkStatusPayment()
-  }).catch(() => {
-    error.value = 'Erro ao gerar Pix.'
+  }).catch((error) => {
+    console.log(erro)
+    window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message, 'error')
     loading.value = false
   })
 }
@@ -227,14 +348,47 @@ function submitCredit() {
       card_number: cardData.value.card_number.replaceAll(' ', '')
     }
   }).then(res => {
-    success.value = 'Pagamento aprovado!'
+    window.$notify('Pagamento aprovado!', 'success')
     loading.value = false
     currentStep.value = 3
     emit('update:step', 3)
-  }).catch(() => {
-    error.value = 'Erro ao processar pagamento.'
+  }).catch((error) => {
+    console.log(error)
+    if(error.response) {
+      window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message, 'error')
+    } else {
+      window.$notify('Erro ao processar pagamento', 'error')
+    }
     loading.value = false
   })
+}
+
+const totalComJuros = computed(() => {
+  const parcela = pacerls.find(p => p.value === cardData.value.installment_quantity);
+  if (!parcela) return props.order.total;
+  const acrescimo = props.order.total * parcela.percent;
+  return props.order.total + Math.max(0, acrescimo);
+});
+
+function voltar() {
+  if (currentStep.value === 1) {
+    emit('update:step', 0) // Volta para a tela de dados
+  } else {
+    currentStep.value = 1
+    emit('update:step', 1)
+  }
+  
+  if (timer) {
+    clearInterval(timer)
+  }
+  clearCheckTimeout()
+  paymentPending.value = null
+  timeRemaining.value = 30 * 60
+  currentMinuteProgress.value = 0
+}
+
+function voltarParaDados() {
+  emit('voltar')
 }
 
 onMounted(() => {
@@ -254,3 +408,138 @@ onUnmounted(() => {
   clearCheckTimeout()
 })
 </script> 
+
+<style scoped>
+
+.custom-select-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #00579d;
+  margin-bottom: 0.25rem;
+}
+
+/* Cada input dentro de uma div com borda, igual ao select da imagem. Borda vermelha em erro. */
+.onboarding-search {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px 0 rgba(160, 174, 192, 0.08);
+  padding: 0.25rem 1rem 0.25rem 0.75rem;
+  border: 1.5px solid #f3f4f6;
+  transition: border 0.2s;
+  width: 100%;
+}
+.onboarding-search:focus-within {
+  border: 1.5px solid #6f6ee8;
+}
+.onboarding-search-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+.onboarding-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #333;
+  width: 100%;
+  padding: 0.5rem 0;
+  font-weight: 500;
+}
+
+.resumo-pagamento-card {
+  background: #fafafa;
+  border-radius: 1.2rem;
+  border: 1px solid #ececec;
+  box-shadow: 0 2px 8px 0 rgba(80,80,160,0.04);
+  padding: 1.5rem 1.2rem 1.2rem 1.2rem;
+
+  margin: 0 auto 2rem auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.resumo-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #00579d;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.01em;
+}
+.resumo-header {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #00579d;
+  border-bottom: 1px solid #ececec;
+
+}
+.resumo-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.resumo-label-ida {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 0.2rem;
+  letter-spacing: 0.01em;
+  border-bottom: 1px solid #ececec;
+  padding-bottom: 0.3rem;
+}
+.resumo-linha {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  font-size: 1rem;
+  color: #222;
+}
+.resumo-icone {
+  width: 22px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #A0AEC0;
+}
+.resumo-info {
+  color: #535353;
+  font-weight: 400;
+  word-break: break-word;
+}
+.resumo-seta {
+  color: #b0b0b0;
+  margin: 0 0.2rem;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+.resumo-linha-total {
+  border-top: 1px solid #ececec;
+  margin-top: 0.7rem;
+  padding-top: 0.7rem;
+}
+.resumo-total-valor {
+  color: #0070bb;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+.resumo-pagamento-info {
+  font-size: 0.95rem;
+  color: #0070bb;
+  margin-top: 0.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.resumo-pix {
+  font-weight: 700;
+}
+.resumo-cartao {
+  color: #888;
+  font-size: 0.93rem;
+}
+
+</style>

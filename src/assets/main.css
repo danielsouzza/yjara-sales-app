@@ -1,0 +1,10 @@
+:root {
+  --color-primary: #00579d;
+  --color-secondary: #3dccfd;
+}
+.tw-bg-primary { background-color: var(--color-primary) !important; }
+.tw-text-primary { color: var(--color-primary) !important; }
+.tw-border-primary { border-color: var(--color-primary) !important; }
+.tw-bg-secondary { background-color: var(--color-secondary) !important; }
+.tw-text-secondary { color: var(--color-secondary) !important; }
+.tw-border-secondary { border-color: var(--color-secondary) !important; } 

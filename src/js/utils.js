@@ -59,7 +59,22 @@ const formatCurrency = (number) => {
     return formatter.format(number);
 }
 
+function gerarStringTiposComodos(tiposComodos) {
+    if (Array.isArray(tiposComodos)) {
+        return [...new Set(tiposComodos.map(comodo => comodo.nome))].join(" | ");
+    }
+    return "";
+}
 
-export { formatarTempoViagem, formatDate, formatarHora, formatMoney, calcularValor, formatCurrency };
+const pacerls = [
+  { value: 1, percent: 0.04 },
+  { value: 2, percent: 0.06 },
+  { value: 3, percent: 0.07 },
+  { value: 4, percent: 0.08 },
+  { value: 5, percent: 0.09 },
+  { value: 6, percent: 0.10 },
+];
+
+export { formatarTempoViagem, formatDate, formatarHora, formatMoney, calcularValor, formatCurrency, pacerls, gerarStringTiposComodos };
 
 

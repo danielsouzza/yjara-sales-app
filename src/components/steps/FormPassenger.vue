@@ -29,15 +29,52 @@
     </div>
 
     <div class="tw-space-y-6">
+      <!-- Tipo de Documento -->
+      <div>
+        <CustomSelect
+          :searchable="false"
+          v-model="form.tipo_doc"
+          label="Tipo de Documento"
+          :required="true"
+          placeholder="Selecione o tipo de documento"
+          :options="tiposDoc.map(doc => ({ value: doc.id, label: doc.nome }))"
+        />
+      </div>
+
+      <!-- Número do Documento -->
+      <div>
+        <label class="custom-select-label">Nº do documento</label>
+        <div class="onboarding-search" :class="{'tw-border-red-500': form.errors.document}">
+          <span class="onboarding-search-icon">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+          </span>
+          <input
+            type="text"
+            :key="form.tipo_doc"
+            v-model="form.document"
+            required
+            v-mask-doc="form.tipo_doc ? tiposDoc[form.tipo_doc-1]?.mask : '###########'"
+            placeholder="Digite o número do documento"
+            class="onboarding-search-input"
+            :class="{'tw-text-red-600': form.errors.document}"
+          />
+        </div>
+        <p v-if="form.errors.document" class="tw-mt-1 tw-text-xs tw-text-red-600">{{ form.errors.document }}</p>
+      </div>
+
       <!-- Nome completo -->
       <div>
-        <label class="tw-block tw-text-xs tw-font-normal tw-text-[#374151] tw-mb-1">Nome completo</label>
-        <div :class="['tw-border tw-rounded tw-bg-white tw-px-4 tw-py-3', form.errors.nome ? 'tw-border-red-500' : 'tw-border-[#bdbdbd]']">
+        <label class="custom-select-label">Nome completo</label>
+        <div class="onboarding-search" :class="{'tw-border-red-500': form.errors.nome}">
+          <span class="onboarding-search-icon">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+          </span>
           <input
             type="text"
             v-model="form.nome"
+            required
             placeholder="Digite o nome completo"
-            class="tw-w-full tw-bg-transparent tw-border-none tw-outline-none tw-h-[28px] tw-placeholder:text-[#9ca3af] tw-text-base focus:tw-border-none focus:tw-outline-none focus:tw-ring-0"
+            class="onboarding-search-input"
             :class="{'tw-text-red-600': form.errors.nome}"
           />
         </div>
@@ -46,61 +83,32 @@
 
       <!-- Telefone -->
       <div>
-        <label class="tw-block tw-text-xs tw-font-normal tw-text-[#374151] tw-mb-1">Telefone</label>
-        <div :class="['tw-border tw-rounded tw-bg-white tw-px-4 tw-py-3', form.errors.telefone ? 'tw-border-red-500' : 'tw-border-[#bdbdbd]']">
+        <label class="custom-select-label">Telefone</label>
+        <div class="onboarding-search" :class="{'tw-border-red-500': form.errors.telefone}">
+          <span class="onboarding-search-icon">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg>
+          </span>
           <input
             v-mask-doc="'(##) #####-####'"
             v-model="form.telefone"
             placeholder="(00) 00000-0000"
-            class="tw-w-full tw-bg-transparent tw-border-none tw-outline-none tw-h-[28px] tw-placeholder:text-[#9ca3af] tw-text-base focus:tw-border-none focus:tw-outline-none focus:tw-ring-0"
+            class="onboarding-search-input"
             :class="{'tw-text-red-600': form.errors.telefone}"
           />
         </div>
         <p v-if="form.errors.telefone" class="tw-mt-1 tw-text-xs tw-text-red-600">{{ form.errors.telefone }}</p>
       </div>
 
-      <!-- Tipo de Documento -->
-      <div>
-        <F7CustomSelect
-          v-model="form.tipo_doc"
-          label="Tipo de Documento"
-          placeholder="Selecione o tipo de documento"
-          :options="tiposDoc.map(doc => ({ value: doc.id, label: doc.nome }))"
-          :error="!!form.errors.tipo_doc"
-          :error-message="form.errors.tipo_doc"
-        />
-      </div>
-
-      <!-- Número do Documento -->
-      <div v-if="form.tipo_doc">
-        <label class="tw-block tw-text-xs tw-font-normal tw-text-[#374151] tw-mb-1">Nº do documento</label>
-        <div :class="['tw-border tw-rounded tw-bg-white tw-px-4 tw-py-3', form.errors.document ? 'tw-border-red-500' : 'tw-border-[#bdbdbd]']">
-          <input
-            type="text"
-            :key="form.tipo_doc"
-            v-model="form.document"
-            v-mask-doc="form.tipo_doc ? tiposDoc[form.tipo_doc-1]?.mask : '###########'"
-            placeholder="Digite o número do documento"
-            class="tw-w-full tw-bg-transparent tw-border-none tw-outline-none tw-h-[28px] tw-placeholder:text-[#9ca3af] tw-text-base focus:tw-border-none focus:tw-outline-none focus:tw-ring-0"
-            :class="{'tw-text-red-600': form.errors.document}"
-          />
-        </div>
-        <p v-if="form.errors.document" class="tw-mt-1 tw-text-xs tw-text-red-600">{{ form.errors.document }}</p>
-      </div>
-
       <!-- Data de Nascimento -->
       <div>
-        <label class="tw-block tw-text-xs tw-font-normal tw-text-[#374151] tw-mb-1">Data de Nascimento</label>
-        <div :class="['tw-border tw-rounded tw-bg-white tw-px-4 tw-py-3', form.errors.nascimento ? 'tw-border-red-500' : 'tw-border-[#bdbdbd]']">
-          <input
-            type="date"
-            v-model="form.nascimento"
-            :max="new Date().toISOString().split('T')[0]"
-            class="tw-w-full tw-bg-transparent tw-border-none tw-outline-none tw-h-[28px] tw-placeholder:text-[#9ca3af] tw-text-base focus:tw-border-none focus:tw-outline-none focus:tw-ring-0"
-            :class="{'tw-text-red-600': form.errors.nascimento}"
-          />
-        </div>
-        <p v-if="form.errors.nascimento" class="tw-mt-1 tw-text-xs tw-text-red-600">{{ form.errors.nascimento }}</p>
+        <DateSelectCustom
+          v-model="form.nascimento"
+          :max-date="new Date()"
+          label="Data de Nascimento"
+          placeholder="Selecione a data de nascimento"
+          :error="!!form.errors.nascimento"
+          :error-message="form.errors.nascimento"
+        />
       </div>
     </div>
 
@@ -129,7 +137,8 @@
 </template>
 
 <script setup>
-import F7CustomSelect from '../ui/F7CustomSelect.vue'
+import CustomSelect from '../ui/CustomSelect.vue'
+import DateSelectCustom from '../ui/DateSelectCustom.vue'
 
 const props = defineProps({
   form: Object,
@@ -148,5 +157,46 @@ const tiposDoc = [
 </script>
 
 <style scoped>
+
+.custom-select-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #00579d;
+  margin-bottom: 0.25rem;
+}
+
 /* Cada input dentro de uma div com borda, igual ao select da imagem. Borda vermelha em erro. */
+.onboarding-search {
+  display: flex;
+  align-items: center;
+  background: #f3f4f6;
+  border-radius: 9999px;
+  box-shadow: 0 1px 4px 0 rgba(160, 174, 192, 0.08);
+  padding: 0.25rem 1rem 0.25rem 0.75rem;
+  border: 1.5px solid #f3f4f6;
+  transition: border 0.2s;
+  width: 100%;
+}
+.onboarding-search:focus-within {
+  border: 1.5px solid #6f6ee8;
+}
+.onboarding-search-icon {
+  display: flex;
+  align-items: center;
+  margin-right: 0.5rem;
+}
+.onboarding-search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: #333;
+  width: 100%;
+  padding: 0.5rem 0;
+  font-weight: 500;
+}
+.onboarding-search-input::placeholder {
+  color: #b0b0b0;
+  opacity: 1;
+}
 </style>
