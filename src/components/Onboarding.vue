@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import DateSelectCustom from '@/components/ui/DateSelectCustom.vue';
 import { ViagemService } from '@/js/services/ViagemService';
 
@@ -175,6 +175,9 @@ onMounted(async () => {
   if (props.portoUrl) {
     portoOrigem.value = Number(props.portoUrl);
     step.value = 2;
+    nextTick(() => {
+      carregarFiltros();
+    });
   }
   loading.value = false;
 });
