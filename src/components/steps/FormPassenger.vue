@@ -1,5 +1,9 @@
 <template>
-  <div class="tw-bg-white tw-rounded-xl tw-p-6 tw-mb-6 tw-border tw-border-gray-100 ">
+  <div class="tw-bg-white tw-rounded-xl tw-p-6 tw-mb-6 tw-border tw-border-gray-100 tw-relative">
+    <div v-if="loadingBusca" class="tw-absolute tw-inset-0 tw-bg-white/80 tw-flex tw-items-center tw-justify-center tw-z-20">
+      <f7-preloader size="32px" color="primary" />
+      <span class="tw-ml-3 tw-text-primary tw-font-bold">Buscando passageiro...</span>
+    </div>
     <div class="tw-flex tw-items-center tw-justify-between tw-mb-4">
       <h3 class="tw-font-bold tw-text-lg tw-text-gray-800">Passageiro {{ index + 1 }}</h3>
       <div class="tw-flex tw-items-center tw-gap-2">
@@ -57,6 +61,7 @@
             placeholder="Digite o número do documento"
             class="onboarding-search-input"
             :class="{'tw-text-red-600': form.errors.document}"
+            @blur="buscarPassageiroPorDocumento"
           />
         </div>
         <p v-if="form.errors.document" class="tw-mt-1 tw-text-xs tw-text-red-600">{{ form.errors.document }}</p>
@@ -104,6 +109,7 @@
         <DateSelectCustom
           v-model="form.nascimento"
           :max-date="new Date()"
+          :disable-today="true"
           label="Data de Nascimento"
           placeholder="Selecione a data de nascimento"
           :error="!!form.errors.nascimento"
@@ -139,6 +145,8 @@
 <script setup>
 import CustomSelect from '../ui/CustomSelect.vue'
 import DateSelectCustom from '../ui/DateSelectCustom.vue'
+import { ViagemService } from '@/js/services/ViagemService'
+import { ref } from 'vue'
 
 const props = defineProps({
   form: Object,
@@ -154,6 +162,36 @@ const tiposDoc = [
   { id: 4, nome: 'CNH', tamanho: 11, mask: '###########' },
   { id: 5, nome: 'CPF', tamanho: 0, mask: '###.###.###-##' }
 ];
+
+const loadingBusca = ref(false);
+
+async function buscarPassageiroPorDocumento() {
+  const tipo = props.form.tipo_doc;
+  const doc = props.form.document;
+
+  if (!tipo || !doc) return;
+
+  loadingBusca.value = true;
+  try {
+    const resp = await ViagemService.getPassageiros({ tipo, doc });
+    if (resp.data ) {
+      const dados = resp.data;
+      props.form.nome = dados.nome || '';
+      props.form.telefone = dados.telefone || '';
+      if (dados.nascimento) {
+        const [year, month, day] = dados.nascimento.split('-').map(Number);
+        props.form.nascimento = new Date(year, month - 1, day);
+      } else {
+        props.form.nascimento = '';
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    // Não encontrou passageiro, não faz nada
+  } finally {
+    loadingBusca.value = false;
+  }
+}
 </script>
 
 <style scoped>

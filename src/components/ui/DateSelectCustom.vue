@@ -63,9 +63,11 @@ import CustomSelect from './CustomSelect.vue';
 const props = defineProps({
   modelValue: [Date, String, Number, null],
   minDate: { type: [Date, String, Number], default: null },
+  maxDate: { type: [Date, String, Number], default: null },
   label: String,
   placeholder: { type: String, default: 'Selecione uma data' },
-  format: { type: String, default: 'dd/MM/yyyy' }
+  format: { type: String, default: 'dd/MM/yyyy' },
+  disableToday: { type: Boolean, default: false }
 });
 const emit = defineEmits(['update:modelValue']);
 
@@ -172,10 +174,28 @@ function isToday(day) {
 }
 function isDisabled(day) {
   if (!day) return true;
-  if (!props.minDate) return false;
-  const min = new Date(props.minDate);
   const date = new Date(calendarDate.value.getFullYear(), calendarDate.value.getMonth(), day);
-  return isBefore(date, min);
+
+  // Limite inferior
+  if (props.minDate) {
+    const min = new Date(props.minDate);
+    if (date < min) return true;
+  }
+
+  // Limite superior
+  if (props.maxDate) {
+    const max = new Date(props.maxDate);
+    if (date > max) return true;
+  }
+
+  // Se for aniversário, bloqueia hoje e futuro
+  if (props.disableToday) {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    if (date >= today) return true;
+  }
+
+  return false;
 }
 const isPrevDisabled = computed(() => {
   if (!props.minDate) return false;
