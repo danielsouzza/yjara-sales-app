@@ -358,6 +358,7 @@ function handleInsertData(){
         ...formSale,
         pedido_id: orderResponse.value?.id,
         trecho:formSale.trecho.id,
+        origem: 2,
 
     }
     formSale.processing = true
