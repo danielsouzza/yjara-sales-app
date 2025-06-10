@@ -3,7 +3,7 @@
     <div class="tw-w-full tw-max-w-md">
       <div class="tw-bg-white tw-rounded-3xl tw-shadow-2xl tw-p-8 tw-flex tw-flex-col tw-items-center tw-gap-4 animate-fadein">
         <!-- Logo -->
-        <img src="@/assets/images/logo-yjara.svg" alt="Logo Yjara" class="tw-mb-2 tw-w-40 tw-mx-auto" />
+        <img src="@/assets/images/logo-main-full-techrios.svg" alt="Logo Yjara" class="tw-mb-2 tw-w-40 tw-mx-auto" />
         <!-- Mascote/Emoji -->
         <!-- <div class="tw-text-5xl tw-mb-2">🚢</div> -->
         <!-- Loading -->

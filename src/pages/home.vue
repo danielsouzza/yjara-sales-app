@@ -13,7 +13,7 @@
     </f7-navbar> -->
     <div v-if="!showOnboarding" class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-z-30 tw-bg-white tw-shadow-md tw-h-16 tw-flex tw-items-center tw-justify-center">
       <div class="tw-flex tw-items-center tw-justify-between tw-w-full tw-max-w-[900px] tw-px-4">
-        <img src="@/assets/images/logo-yjara.svg" alt="Logo Yjara" class="tw-my-2 tw-w-40 " />
+        <img src="@/assets/images/logo-main-full-techrios.svg" alt="Logo Yjara" class="tw-my-2 tw-w-40 " />
         <button @click="abrirFiltros" class="tw-bg-gray-100 tw-rounded-full tw-shadow-sm tw-p-1 tw-h-9 tw-w-9 tw-flex tw-items-center tw-justify-center tw-transition hover:tw-bg-primary/10">
          
           <svg width="18" height="18" fill="none" viewBox="0 0 24 24"><path stroke="#6f6ee8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16M6 8h12M8 12h8m2 0v6a2 2 0 01-2 2H8a2 2 0 01-2-2v-6"/></svg>
