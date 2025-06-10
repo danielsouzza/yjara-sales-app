@@ -26,7 +26,7 @@
               <button
                 v-for="p in filteredPortos"
                 :key="p.id"
-                @click="selectPorto(p.id)"
+                @click="selectPorto(p.slug)"
                 class="onboarding-option tw-py-3 tw-px-4 tw-rounded-xl tw-bg-gray-100 hover:tw-bg-primary/10 tw-transition tw-text-base tw-font-medium tw-text-left tw-w-full"
               >
                 {{ p.nome }} / {{ p.municipio_nome }}
@@ -112,7 +112,7 @@ const filteredPortos = computed(() => {
 
   // Se já tem um porto selecionado, priorize portos do mesmo município
   if (portoOrigem.value) {
-    const portoSel = props.portos.find(p => p.id === portoOrigem.value);
+    const portoSel = props.portos.find(p => p.slug === portoOrigem.value);
     if (portoSel) {
       const codMun = portoSel.municipio_codigo;
       portosFiltrados = [
@@ -133,7 +133,7 @@ const filteredMunicipiosDestino = computed(() => {
 
 const portoOrigemObj = computed(() => {
   if (!portoOrigem.value) return null;
-  return props.portos.find(p => p.id === portoOrigem.value) || null;
+  return props.portos.find(p => p.slug === portoOrigem.value) || null;
 });
 
 function selectPorto(id) {
@@ -165,7 +165,7 @@ async function carregarFiltros() {
   loading.value = true;
   const resp = await ViagemService.getFiltros({ porto_id: portoOrigem.value });
   if (resp.data && resp.data.data && resp.data.data.municipiosOrigem) {
-    municipiosDestino.value = resp.data.data.municipiosOrigem;
+    municipiosDestino.value = resp.data.data.municipiosDestino;
   } 
   loading.value = false;
 }   
@@ -173,7 +173,7 @@ async function carregarFiltros() {
 onMounted(async () => {
   // Se já veio o porto na URL, pula direto para o step 2
   if (props.portoUrl) {
-    portoOrigem.value = Number(props.portoUrl);
+    portoOrigem.value = props.portoUrl
     step.value = 2;
     nextTick(() => {
       carregarFiltros();

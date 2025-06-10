@@ -7,12 +7,11 @@
   <GlobalNotification />
 </template>
 <script>
-  import { ref, onMounted } from 'vue';
-  import { f7, f7ready } from 'framework7-vue';
+  import {  onMounted } from 'vue';
+  import {  f7ready } from 'framework7-vue';
 
 
   import routes from '../js/routes.js';
-  import store from '../js/store';
   import GlobalNotification from '@/components/ui/GlobalNotification.vue';
 
   export default {
@@ -22,13 +21,7 @@
       // Framework7 Parameters
       const f7params = {
         name: 'TechRios', // App name
-        theme: 'auto', // Automatic theme detection
-
-
-
-
-        // App store
-        store: store,
+        theme: 'auto', // Automatic theme detectio
         // App routes
         routes: routes,
 

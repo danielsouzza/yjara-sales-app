@@ -110,7 +110,7 @@
           </div>
           <CustomSelect
             v-model=" form.porto"
-            :options="[{ value: '', label: 'Todos os portos' }, ...portos.map(p => ({ value: p.id, label: p.nome }))]"
+            :options="[{ value: '', label: 'Todos os portos' }, ...portos.map(p => ({ value: p.slug, label: p.nome }))]"
             label="Porto de origem"
             placeholder="Selecione o porto"
             class="tw-mb-2"
@@ -236,9 +236,11 @@ const stepTitle = computed(() => {
 const carregarViagens = async () => {
   loading.value = true;
   error.value = null;
+  console.log(form.porto);
+  const porto = portos.value.find(p => p.slug == form.porto);
   try {
     const response = await ViagemService.getTrechosViagem({
-      porto: form.porto,
+      porto: porto.id,
       destino: form.municipioDestino,
       data_hora: form.data ? formatDate(form.data) : '',
       quantia: form.quantia

@@ -1,8 +1,8 @@
 {
-  "name": "TechRios",
-  "short_name": "TechRios",
-  "description": "TechRios",
-  "lang": "en-US",
+  "name": "Passagem Express",
+  "short_name": "Passagem Express",
+  "description": "Passagem Express",
+  "lang": "pt-BR",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#00579d",
