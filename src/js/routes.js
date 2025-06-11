@@ -1,5 +1,4 @@
 import HomePage from '../pages/home.vue';
-import DynamicRoutePage from '../pages/dynamic-route.vue';
 import NotFoundPage from '../pages/404.vue';
 
 var routes = [
@@ -9,7 +8,7 @@ var routes = [
     props: true,
   },
   {
-    path: '/porto/:portoId',
+    path: '/porto/:portoId/',
     component: HomePage,
     props: true,
   },

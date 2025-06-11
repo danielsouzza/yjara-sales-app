@@ -25,7 +25,7 @@
             <path fill="#6b7280" fill-rule="evenodd" d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10s-4.477 10-10 10S2 17.523 2 12m10-4a1 1 0 1 0-2 0v5a1 1 0 0 0 1 1h5a1 1 0 1 0 0-2h-4z" clip-rule="evenodd" />
           </svg>
           <span class="resumo-info">{{ agrup.trecho?.tempo_viagem }}</span>
-        </div>
+          </div>
         <div class="resumo-linha">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <rect width="24" height="24" fill="none" />
@@ -36,7 +36,7 @@
             <span class="resumo-seta">→</span>
             {{ agrup.trecho?.municipio_destino?.nome }}/{{ agrup.trecho?.municipio_destino?.uf }}
           </span>
-        </div>
+          </div>
         <div class="resumo-linha">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
             <rect width="24" height="24" fill="none" />
@@ -69,7 +69,7 @@
               <span v-if="cardData.installment_quantity > 1">
                 em {{ cardData.installment_quantity }}x de {{ formatCurrency(totalComJuros / cardData.installment_quantity) }}
               </span>
-            </div>
+      </div>
           </template>
         </span>
       </div>
@@ -94,7 +94,7 @@
           <div class="tw-font-bold tw-text-base tw-mb-1">Cartão de Crédito</div>
           <div class="tw-text-xs tw-text-gray-500">Pague com cartão de crédito</div>
           <span v-if="paymentMethod === 'credit'" class="tw-absolute tw-top-2 tw-right-2 tw-bg-primary tw-text-white tw-rounded-full tw-p-1 tw-shadow"><svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
-        </div>
+      </div>
       </div>
       <!-- Fim escolha moderna -->
       <div v-if="paymentMethod === 'pix'" class="tw-mb-4">
@@ -381,7 +381,7 @@ function submitCredit() {
   }).catch((error) => {
     console.log(error)
     if(error.response) {
-      window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message, 'error')
+    window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message, 'error')
     } else {
       window.$notify('Erro ao processar pagamento', 'error')
     }
