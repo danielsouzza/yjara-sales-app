@@ -9,7 +9,7 @@ var routes = [
     props: true,
   },
   {
-    path: '/porto/:portoId?',
+    path: '/porto/:portoId',
     component: HomePage,
     props: true,
   },
