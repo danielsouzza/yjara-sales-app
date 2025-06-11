@@ -146,6 +146,27 @@
         </div>
       </transition>
     </div>
+    <div
+      v-if="showInstallPopup"
+      class="tw-fixed tw-inset-0 tw-bg-black/40 tw-z-[9999] tw-flex tw-items-center tw-justify-center"
+    >
+      <div class="tw-bg-white tw-rounded-2xl tw-shadow-2xl tw-p-8 tw-flex tw-flex-col tw-items-center tw-gap-4 tw-max-w-xs">
+        <h2 class="tw-text-lg tw-font-bold tw-text-center">Instale o aplicativo!</h2>
+        <p class="tw-text-gray-600 tw-text-center">Adicione o Passagem Express à sua tela inicial para uma experiência melhor.</p>
+        <button
+          @click="instalarPWA"
+          class="tw-bg-primary tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 tw-transition tw-mt-2"
+        >
+          Instalar agora
+        </button>
+        <button
+          @click="showInstallPopup = false"
+          class="tw-text-gray-400 tw-mt-2 tw-text-sm"
+        >
+          Não, obrigado
+        </button>
+      </div>
+    </div>
   </f7-page>
 </template>
 
@@ -204,7 +225,7 @@ const form = reactive({
   quantia: 10
 });
 
-const portoUrl = ref(props.f7route.query?.porto || null);
+const portoUrl = ref(props.f7route.params?.portoId || null);
 const showOnboarding = ref(true);
 
 const municipiosDestinoOptions = computed(() =>
@@ -218,7 +239,8 @@ const draftFilters = reactive({
   data: null 
 });
 
-
+const deferredPrompt = ref(null);
+const showInstallPopup = ref(false);
 
 function formSaleReset(){
   formSale.trecho = null;
@@ -417,6 +439,16 @@ function abrirFiltros() {
   showFilters.value = true;
 }
 
+function instalarPWA() {
+  if (deferredPrompt.value) {
+    deferredPrompt.value.prompt();
+    deferredPrompt.value.userChoice.then(() => {
+      deferredPrompt.value = null;
+      showInstallPopup.value = false;
+    });
+  }
+}
+
 onMounted(() => {
   carrgarPortos();
   carregarMunicipiosDestino();
@@ -425,6 +457,11 @@ onMounted(() => {
       form.porto = portoUrl.value;
       // Não carrega viagens ainda, espera onboarding
     }
+  });
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt.value = e;
+    showInstallPopup.value = true;
   });
 });
 </script>
