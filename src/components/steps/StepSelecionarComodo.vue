@@ -139,14 +139,14 @@
             </div>
           </div>
           <div v-if="roomsSelected.selectedsByType?.length === 0 && roomsSelected.selectedsById?.length === 0" class="tw-flex tw-items-center tw-gap-1 tw-text-xs tw-text-p !tw-m-0">
-            Nenhum cômodo selecionado
+            Nenhum cômodo selecionado, clique em um cômodo para continuar
           </div>
         </div>
         <!-- Botões -->
         <div class="tw-flex tw-justify-center tw-gap-4">
           <button
             class="tw-bg-gray-200 tw-text-gray-700 tw-px-6 tw-py-2 tw-rounded-xl tw-font-medium hover:tw-bg-gray-300"
-            @click="$emit('voltar')"
+            @click="onClickVoltar"
             type="button"
           >
             Voltar
@@ -313,6 +313,14 @@ function decrementComodo(type) {
   if(type_comodo.quantidade === 0){
       roomsSelected.value.selectedsByType.splice(roomsSelected.value.selectedsByType.indexOf(type_comodo), 1)
   }
+}
+
+function onClickVoltar(){
+  roomsSelected.value.selectedsById.forEach(item => {
+    deleteReserva(item)
+  })
+
+  emit('voltar')
 }
 
 function postReserva(room){

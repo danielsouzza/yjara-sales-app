@@ -126,6 +126,7 @@
 <script setup>
 import FormPassenger from './FormPassenger.vue';
 import {  nextTick } from 'vue';
+import { ComodoService } from '../../js/services/ComodoService';
 
 const props = defineProps({
   viagem: {
@@ -223,6 +224,21 @@ async function focusErro() {
   }
 }
 
+function deleteReserva(room){
+  
+  const params = {
+    trecho_id: props.viagem.id,
+    viagem_id: props.viagem.id_viagem,
+    comodo_ids: [room]
+  }
+  ComodoService.deletarReserva(params).then((response) => {
+    
+  }).catch(error => {
+    showErrorNotification(error.response.data.data.error);
+  })
+
+}
+
 async function submitForm() {
   if (validateForm()) {
     const formData = {
@@ -236,7 +252,12 @@ async function submitForm() {
 }
 
 function voltar() {
-  emit('back');
+  props.dataSale.dataComodos.forEach(item => {
+    deleteReserva(item.comodo)
+  })
+  nextTick(() => {
+    emit('back');
+  })
 }
 </script>
 
