@@ -4,13 +4,14 @@ import NotFoundPage from '../pages/404.vue';
 
 var routes = [
   {
-    path: '/:portoId?',
+    path: '/',
     component: HomePage,
     props: true,
   },
   {
-    path: '/about/',
-    component: DynamicRoutePage,
+    path: '/porto/:portoId?',
+    component: HomePage,
+    props: true,
   },
   {
     path: '(.*)',
