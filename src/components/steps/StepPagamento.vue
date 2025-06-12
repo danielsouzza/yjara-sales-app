@@ -348,7 +348,7 @@ function submitPix() {
   error.value = ''
   success.value = ''
   timeRemaining.value = 30 * 60
-  PedidoService.paymentPix({ order_id: props.order.id }).then(res => {
+  PedidoService.paymentPix({ pedido_id: props.order.id }).then(res => {
     paymentPending.value = res.data.data
     success.value = 'Pix gerado com sucesso!'
     loading.value = false
@@ -368,7 +368,7 @@ function submitCredit() {
   error.value = ''
   success.value = ''
   PedidoService.paymentCredito({
-    order_id: props.order.id,
+    pedido_id: props.order.id,
     credit_card: {
       ...cardData.value,
       card_number: cardData.value.card_number.replaceAll(' ', '')
