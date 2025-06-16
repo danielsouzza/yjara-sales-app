@@ -41,7 +41,10 @@
         <div class="tw-bg-gray-50 tw-rounded-xl tw-shadow-inner tw-py-4 tw-mb-6">
           <!-- Mantém o grid/Boat existente -->
           <Boat v-if="matrizRooms?.length > 0" class="tw-mb-4 tw-px-2">
-            <div :style="generateLayout()" class="tw-h-full">
+            <div
+              :style="generateLayout()"
+              :class="{'tw-h-full': true, 'grid-mobile-reverse': !isLargeScreen}"
+            >
               <div
                 v-for="(comodo, index) in matrizRooms"
                 :key="index"
@@ -482,5 +485,14 @@ getRoomsByTrecho()
   gap: 16px;
   font-size: 14px;
   color: #666;
+}
+
+@media (max-width: 1023px) {
+  .grid-mobile-reverse {
+    direction: rtl;
+  }
+  .grid-mobile-reverse > * {
+    direction: ltr;
+  }
 }
 </style>
