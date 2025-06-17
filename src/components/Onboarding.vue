@@ -164,7 +164,7 @@ function finishOnboarding() {
 async function carregarFiltros() {
   loading.value = true;
   const resp = await ViagemService.getFiltros({ porto_id: portoOrigem.value });
-  if (resp.data && resp.data.data && resp.data.data.municipiosOrigem) {
+  if (resp.data && resp.data.data && resp.data.data.municipiosDestino ) {
     municipiosDestino.value = resp.data.data.municipiosDestino;
   } 
   loading.value = false;

@@ -171,7 +171,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, nextTick, computed } from 'vue';
+import { ref, onMounted, reactive, nextTick, computed, watch } from 'vue';
 import { ViagemService } from '@/js/services/ViagemService';
 import { PedidoService } from '@/js/services/PedidoService';
 import StepEscolherViagem from '@/components/steps/StepEscolherViagem.vue';
@@ -283,10 +283,16 @@ const carrgarPortos = async () => {
   });
 }
 
-const carregarMunicipiosDestino = async () => {
-  const resp = await ViagemService.getFiltros();
-  if (resp.data && resp.data.data && resp.data.data.municipiosOrigem) {
-    municipiosDestino.value = resp.data.data.municipiosOrigem;
+const carregarMunicipiosDestino = async (portoId) => {
+  let params = {};
+  if (portoId) {
+    params.porto_id = portoId;
+  }
+  const resp = await ViagemService.getFiltros(params);
+  if (resp.data && resp.data.data && resp.data.data.municipiosDestino) {
+    municipiosDestino.value = resp.data.data.municipiosDestino;
+  } else {
+    municipiosDestino.value = [];
   }
 }
 
@@ -448,6 +454,11 @@ function instalarPWA() {
     });
   }
 }
+
+watch(() => form.porto, (novoPorto) => {
+  carregarMunicipiosDestino(novoPorto);
+  form.municipioDestino = '';
+});
 
 onMounted(() => {
   carrgarPortos();
