@@ -100,7 +100,7 @@
           >
             Voltar
           </button>
-          <button 
+          <button
             class="tw-bg-primary tw-flex tw-items-center tw-justify-center tw-text-white tw-px-8 tw-py-2 tw-rounded-xl tw-font-bold shadow-lg hover:tw-bg-primary/90 disabled:tw-opacity-50"
             type="submit"
             @click="initSale"
@@ -225,16 +225,16 @@ async function focusErro() {
 }
 
 function deleteReserva(room){
-  
+
   const params = {
     trecho_id: props.viagem.id,
     viagem_id: props.viagem.id_viagem,
     comodo_ids: [room]
   }
   ComodoService.deletarReserva(params).then((response) => {
-    
+
   }).catch(error => {
-    showErrorNotification(error.response.data.data.error);
+      window.$notify(error.response.data.data.error,'error');
   })
 
 }
@@ -244,7 +244,7 @@ async function submitForm() {
     const formData = {
       dataSale: props.dataSale
     };
-    
+
     emit('continue', formData);
   } else {
     await focusErro();
@@ -302,4 +302,4 @@ function voltar() {
   color: #b0b0b0;
   opacity: 1;
 }
-</style> 
+</style>

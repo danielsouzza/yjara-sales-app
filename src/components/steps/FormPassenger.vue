@@ -57,7 +57,7 @@
             :key="form.tipo_doc"
             v-model="form.document"
             required
-            v-mask-doc="form.tipo_doc ? tiposDoc[form.tipo_doc-1]?.mask : '###########'"
+            v-mask-doc="form.tipo_doc ? tiposDoc.find(it=>it.id == form.tipo_doc)?.mask : '###########'"
             placeholder="Digite o número do documento"
             class="onboarding-search-input"
             :class="{'tw-text-red-600': form.errors.document}"
@@ -156,11 +156,11 @@ const props = defineProps({
 
 const emit = defineEmits(['addToContact', 'removeFromContact', 'remover', 'addComodoRelated']);
 const tiposDoc = [
+  { id: 5, nome: 'CPF', tamanho: 0, mask: '###.###.###-##' },
   { id: 1, nome: 'RG', tamanho: 15, mask: '###############' },
   { id: 2, nome: 'Titulo de Eleitor', tamanho: 12, mask: '#### #### ####' },
   { id: 3, nome: 'Passaporte', tamanho: 20, mask: '#################' },
   { id: 4, nome: 'CNH', tamanho: 11, mask: '###########' },
-  { id: 5, nome: 'CPF', tamanho: 0, mask: '###.###.###-##' }
 ];
 
 const loadingBusca = ref(false);
