@@ -460,6 +460,18 @@ watch(() => form.porto, (novoPorto) => {
   form.municipioDestino = '';
 });
 
+// Scrolla para o topo ao trocar de step
+watch(() => step.value, async () => {
+  await nextTick();
+  // Tente encontrar o container de scroll do Framework7
+  const pageContent = document.querySelector('.page-content') || document.querySelector('.f7-page');
+  if (pageContent) {
+    pageContent.scrollTo({ top: 0, behavior: 'smooth' });
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
+
 onMounted(() => {
   carrgarPortos();
   carregarMunicipiosDestino();
