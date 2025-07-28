@@ -350,8 +350,9 @@ function postReserva(room){
   ComodoService.reservarComodo(params).then((response) => {
     loadingReserva.value = false
   }).catch(error => {
+    console.log(error)
     loadingReserva.value = false
-      window.$notify(error.response.data.data.error,'error');
+    window.$notify(error.response.data.data.error,'error');
     roomsSelected.value.selectedsById.splice(roomsSelected.value.selectedsById.indexOf(room), 1)
 
   })

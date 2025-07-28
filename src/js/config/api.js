@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const api = axios.create({
+const api = axios.create({
   baseURL: process.env.API_BASE_URL || 'https://app.homologacao.yjaraviagens.com',
   timeout: 10000,
   headers: {
@@ -9,3 +9,16 @@ export const api = axios.create({
   }
 });
 
+api.interceptors.request.use(config => {
+  const subdomain = sessionStorage.getItem('subdomain');
+  if (subdomain && subdomain !== 'null') {
+    if (config.method === 'get') {
+      config.params.subdomain = subdomain
+    } else {
+      config.data.subdomain = subdomain
+    }
+  } 
+  return config;
+});
+
+export { api };

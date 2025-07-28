@@ -13,6 +13,11 @@ var routes = [
     props: true,
   },
   {
+    path: '/:empresaId/porto/:portoId',
+    component: HomePage,
+    props: true,
+  },
+  {
     path: '(.*)',
     component: NotFoundPage,
   },

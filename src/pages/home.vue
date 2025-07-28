@@ -13,7 +13,7 @@
     </f7-navbar> -->
     <div v-if="!showOnboarding" class="tw-fixed tw-top-0 tw-left-0 tw-w-full tw-z-30 tw-bg-white tw-shadow-md tw-h-16 tw-flex tw-items-center tw-justify-center">
       <div class="tw-flex tw-items-center tw-justify-between tw-w-full tw-max-w-[900px] tw-px-4">
-        <img src="@/assets/images/logo-main-full-techrios.svg" alt="Logo Yjara" class="tw-my-2 tw-w-40 " />
+        <img :src="logoUrl" alt="Logo Yjara" class="tw-my-2 tw-w-40 !tw-object-cover  tw-h-14 tw-rounded-lg" />
         <button @click="abrirFiltros" class="tw-bg-gray-100 tw-rounded-full tw-shadow-sm tw-p-1 tw-h-9 tw-w-9 tw-flex tw-items-center tw-justify-center tw-transition hover:tw-bg-primary/10">
          
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
@@ -35,6 +35,7 @@
       <div class="tw-w-full tw-max-w-[900px] tw-mx-4 ">
         <Onboarding
           class="tw-w-fult tw-pt-5"
+          :logo-url="logoUrl"
           v-if="showOnboarding"
           :portos="portos"
           :porto-url="portoUrl"
@@ -183,6 +184,7 @@ import CustomSelect from '@/components/ui/CustomSelect.vue';
 import DateSelectCustom from '@/components/ui/DateSelectCustom.vue';
 import Onboarding from '@/components/Onboarding.vue';
 import QuickDateSelector from '@/components/ui/QuickDateSelector.vue';
+import { CustomizeService } from '@/js/services/Customize';
 
 const props = defineProps({
     f7route: Object,
@@ -226,7 +228,9 @@ const form = reactive({
 });
 
 const portoUrl = ref(props.f7route.params?.portoId || null);
+const empresaId = ref(props.f7route.params?.empresaId || null);
 const showOnboarding = ref(true);
+const logoUrl = ref('/assets/images/logo-main-full-techrios.svg'); // valor padrão
 
 const municipiosDestinoOptions = computed(() =>
   municipiosDestino.value.map(m => ({ value: m.slug, label: m.nome }))
@@ -445,6 +449,24 @@ function abrirFiltros() {
   showFilters.value = true;
 }
 
+async function carregarTema() {
+  const response = await CustomizeService.getCustomize();
+  if (response.data && response.data.data) {
+
+    
+    // Cores
+    if (response.data.data.theme) {
+      const { primary_color, secondary_color } = response.data.data.theme;
+      document.documentElement.style.setProperty('--primary-color', primary_color);
+      document.documentElement.style.setProperty('--secondary-color', secondary_color);
+    }
+    // Logo
+    if (response.data.data.image_path) {
+      logoUrl.value = process.env.API_BASE_URL + response.data.data.image_path;
+    }
+  }
+}
+
 function instalarPWA() {
   if (deferredPrompt.value) {
     deferredPrompt.value.prompt();
@@ -473,7 +495,9 @@ watch(() => step.value, async () => {
 });
 
 onMounted(() => {
+  sessionStorage.setItem('subdomain', empresaId.value);
   carrgarPortos();
+  carregarTema(empresaId.value);
   carregarMunicipiosDestino();
   nextTick(() => {
     if (portoUrl.value) {
@@ -490,11 +514,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-
-.onboarding-bg {
-  background: linear-gradient(135deg, #00579d 0%, #3dccfd    100%);
-  min-height: 100vh;
-}
 
 
 .my-datepicker:deep(.dp__outer_menu_wrap){
