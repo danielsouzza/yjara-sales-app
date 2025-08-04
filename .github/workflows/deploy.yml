@@ -24,9 +24,9 @@ jobs:
       - name: Build para o Servidor
         run: |
           if [ "${{ github.ref_name }}" = "main" ]; then
-            npm run build:prod:yjaraviagens
+            npm run build:prod
           else
-            npm run build:homo:yjaraviagens
+            npm run build:homologacao
           fi
 
       - name: Garante que o diretório remoto existe
