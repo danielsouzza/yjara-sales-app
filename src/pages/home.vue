@@ -158,7 +158,7 @@
           @click="instalarPWA"
           class="tw-bg-primary tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 tw-transition tw-mt-2"
         >
-          Instalar agora
+          Instalar agora!!!
         </button>
         <button
           @click="showInstallPopup = false"
