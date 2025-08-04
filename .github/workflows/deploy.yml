@@ -1,0 +1,50 @@
+name: Deploy Passagem Express
+
+on:
+  push:
+    branches:
+      - main
+      - homologacao
+
+jobs:
+  deploy-yjaraviagens:
+    runs-on: ubuntu-latest
+    name: Deploy no Servidor
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Instala dependências
+        run: npm install
+
+      - name: Build para o Servidor
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            npm run build:prod:yjaraviagens
+          else
+            npm run build:homo:yjaraviagens
+          fi
+
+      - name: Garante que o diretório remoto existe
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST_S1 }}
+          username: ${{ secrets.SSH_USER_S1 }}
+          key: ${{ secrets.SSH_KEY_S1 }}
+          script: |
+            mkdir -p ${{ github.ref_name == 'main' && secrets.PROD_DIR_S1 || secrets.HOMO_DIR_S1 }}
+
+      - name: Configura chave SSH para rsync
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY_S1 }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SSH_HOST_S1 }} >> ~/.ssh/known_hosts
+
+      - name: Enviar conteúdo da dist com rsync
+        run: |
+          rsync -avz --delete ./dist/ ${{ secrets.SSH_USER_S1 }}@${{ secrets.SSH_HOST_S1 }}:${{ github.ref_name == 'main' && secrets.PROD_DIR_S1 || secrets.HOMO_DIR_S1 }}
