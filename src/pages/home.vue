@@ -229,7 +229,8 @@ const form = reactive({
 
 const portoUrl = ref(props.f7route.params?.portoId || null);
 const empresaId = ref(props.f7route.params?.empresaId || null);
-const showOnboarding = ref(true);
+// Se tem empresaId, não mostra onboarding
+const showOnboarding = ref(!empresaId.value);
 const logoUrl = ref('/assets/images/logo-main-full-techrios.svg'); // valor padrão
 
 const municipiosDestinoOptions = computed(() =>
@@ -264,12 +265,11 @@ const carregarViagens = async () => {
   formSaleReset()
   loading.value = true;
   error.value = null;
-  console.log(form.porto);
-  const porto = portos.value.find(p => p.slug == form.porto);
+  
   try {
     const response = await ViagemService.getTrechosViagem({
-      porto: porto.id,
-      destino: form.municipioDestino,
+      porto: form.porto || null, // permite null
+      destino: form.municipioDestino || null, // permite null
       data_hora: form.data ? formatDate(form.data) : '',
       quantia: form.quantia
     });
@@ -495,16 +495,23 @@ watch(() => step.value, async () => {
 });
 
 onMounted(() => {
-  sessionStorage.setItem('subdomain', empresaId.value);
   carrgarPortos();
-  carregarTema(empresaId.value);
   carregarMunicipiosDestino();
-  nextTick(() => {
-    if (portoUrl.value) {
-      form.porto = portoUrl.value;
-      // Não carrega viagens ainda, espera onboarding
-    }
-  });
+  
+  if (empresaId.value) {
+    // Se tem empresa, define a data atual e carrega viagens
+    form.data = new Date(); // Define data atual
+    carregarTema(empresaId.value);
+    carregarViagens(); // carrega viagens com data atual
+  } else {
+    // Se não tem empresa, mostra onboarding
+    nextTick(() => {
+      if (portoUrl.value) {
+        form.porto = portoUrl.value;
+      }
+    });
+  }
+  
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault();
     deferredPrompt.value = e;

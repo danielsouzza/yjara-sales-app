@@ -13,7 +13,7 @@ var routes = [
     props: true,
   },
   {
-    path: '/:empresaId/porto/:portoId',
+    path: '/:empresaId',
     component: HomePage,
     props: true,
   },
