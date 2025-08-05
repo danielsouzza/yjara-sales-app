@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.API_BASE_URL || 'https://app.homologacao.yjaraviagens.com',
+  baseURL: process.env.API_BASE_URL || 'https://app.homologacao.techrios.online',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -11,6 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(config => {
   const subdomain = sessionStorage.getItem('subdomain');
+ 
   if (subdomain && subdomain !== 'null') {
     if (config.method === 'get') {
       config.params.subdomain = subdomain
