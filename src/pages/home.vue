@@ -231,7 +231,7 @@ const portoUrl = ref(props.f7route.params?.portoId || null);
 const empresaId = ref(props.f7route.params?.empresaId || null);
 // Se tem empresaId, não mostra onboarding
 const showOnboarding = ref(!empresaId.value);
-const logoUrl = ref('/assets/images/logo-main-full-techrios.svg'); // valor padrão
+const logoUrl = ref(new URL('@/assets/images/logo-main-full-techrios.svg', import.meta.url).href); // valor padrão
 
 const municipiosDestinoOptions = computed(() =>
   municipiosDestino.value.map(m => ({ value: m.slug, label: m.nome }))
