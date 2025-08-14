@@ -67,12 +67,12 @@ function gerarStringTiposComodos(tiposComodos) {
 }
 
 const pacerls = [
-  { value: 1, percent: 0.04 },
-  { value: 2, percent: 0.06 },
-  { value: 3, percent: 0.07 },
-  { value: 4, percent: 0.08 },
-  { value: 5, percent: 0.09 },
-  { value: 6, percent: 0.10 },
+  { value: 1, percent: 0.05 },
+  { value: 2, percent: 0.07 },
+  { value: 3, percent: 0.08 },
+  { value: 4, percent: 0.09 },
+  { value: 5, percent: 0.10 },
+  { value: 6, percent: 0.11 },
 ];
 
 export { formatarTempoViagem, formatDate, formatarHora, formatMoney, calcularValor, formatCurrency, pacerls, gerarStringTiposComodos };

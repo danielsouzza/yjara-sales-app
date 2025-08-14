@@ -18,7 +18,7 @@ export default {
       const mask = binding.value;
       e.target.value = applyMask(e.target.value, mask);
       e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-      e.target.dispatchEvent(new Event('input'));
+      // e.target.dispatchEvent(new Event('input'));
     });
   },
   updated(el, binding) {

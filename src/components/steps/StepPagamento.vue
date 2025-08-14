@@ -124,6 +124,7 @@
               </span>
               <input v-model="cardData.holder" required placeholder="Digite o nome impresso no cartão" class="onboarding-search-input" />
             </div>
+            <span v-if="errors['credit_card.holder']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.holder'] }}</span>
           </div>
           <div>
             <label class="custom-select-label">Número do cartão</label>
@@ -131,8 +132,9 @@
               <span class="onboarding-search-icon">
                 <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="3" stroke="#A0AEC0" stroke-width="2"/><rect x="2" y="9" width="20" height="2" fill="#A0AEC0"/></svg>
               </span>
-              <input v-model="cardData.card_number" required maxlength="19" placeholder="Número do cartão" class="onboarding-search-input" />
+              <input v-model="cardData.card_number" required maxlength="16" pattern="\d{16}" placeholder="Número do cartão" class="onboarding-search-input" />
             </div>
+            <span v-if="errors['credit_card.card_number']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.card_number'] }}</span>
           </div>
           <div class="tw-grid tw-grid-cols-2 tw-gap-4">
             <div>
@@ -143,6 +145,7 @@
                 </span>
                 <input v-model="cardData.expiration_date" v-mask-doc="'##/####'" placeholder="MM/AA" class="onboarding-search-input" />
               </div>
+              <span v-if="errors['credit_card.expiration_date']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.expiration_date'] }}</span>
             </div>
             <div>
               <label class="custom-select-label">CVV</label>
@@ -150,8 +153,9 @@
                 <span class="onboarding-search-icon">
                   <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#A0AEC0" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#A0AEC0"/></svg>
                 </span>
-                <input v-model="cardData.security_code" required maxlength="4" placeholder="CVV" class="onboarding-search-input" />
+                <input v-model="cardData.security_code" required type="text" pattern="\d{4}" maxlength="4"  placeholder="CVV" class="onboarding-search-input" />
               </div>
+              <span v-if="errors['credit_card.security_code']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.security_code'] }}</span>
             </div>
           </div>
           <div>
@@ -165,11 +169,306 @@
                 :required="true"
                 class="onboarding-search-input tw-bg-transparent tw-border-none"
               />
+            <span v-if="errors['credit_card.installment_quantity']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.installment_quantity'] }}</span>
           </div>
           <div v-if="cardData.installment_quantity">
             Valor total com juros: <b>{{ formatCurrency(totalComJuros) }}</b>
           </div>
-          <button type="submit" :disabled="loading" class="tw-bg-primary tw-text-white tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 disabled:tw-opacity-50 tw-transition">
+          
+          <!-- Dados do Comprador -->
+          <div class="tw-mt-6">
+            <div class="tw-flex tw-items-center tw-gap-2 tw-mb-4">
+              <div class="tw-bg-secondary tw-text-white tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-font-bold">
+                Dados do Comprador
+              </div>
+              <div class="tw-flex-1 tw-border-t-2 tw-border-gray-200"></div>
+            </div>
+            
+            <!-- Seleção Brasileiro/Estrangeiro -->
+            <div class="tw-flex tw-items-center tw-gap-2 tw-mb-4">
+              <button 
+                @click="comprador.estrangeiro = false" 
+                :class="['tw-px-4 tw-py-2 tw-rounded-lg tw-text-sm tw-font-medium tw-transition', 
+                  !comprador.estrangeiro 
+                    ? 'tw-bg-primary tw-text-white' 
+                    : 'tw-bg-gray-100 tw-text-gray-600 hover:tw-bg-gray-200']"
+              >
+                Brasileiro
+              </button>
+              <button 
+                @click="comprador.estrangeiro = true" 
+                :class="['tw-px-4 tw-py-2 tw-rounded-lg tw-text-sm tw-font-medium tw-transition', 
+                  comprador.estrangeiro 
+                    ? 'tw-bg-primary tw-text-white' 
+                    : 'tw-bg-gray-100 tw-text-gray-600 hover:tw-bg-gray-200']"
+              >
+                Estrangeiro
+              </button>
+            </div>
+
+            <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+              <!-- Nome completo -->
+              <div>
+                <label class="custom-select-label">Nome completo</label>
+                <div class="onboarding-search">
+                  <span class="onboarding-search-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                      <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                  </span>
+                  <input 
+                    v-model="comprador.xnome" 
+                    required 
+                    placeholder="Digite o seu nome completo" 
+                    class="onboarding-search-input" 
+                  />
+                </div>
+                <span v-if="errors['comprador.xnome']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['comprador.xnome'] }}</span>
+              </div>
+
+              <!-- CPF/Passaporte -->
+              <div>
+                <label class="custom-select-label">{{ comprador.estrangeiro ? 'Passaporte' : 'CPF' }}</label>
+                <div class="onboarding-search">
+                  <span class="onboarding-search-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                      <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.948.684l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                  </span>
+                  <input 
+                    v-model="comprador.cpf_cnpj" 
+                    required 
+                   
+                    :placeholder="comprador.estrangeiro ? 'Digite seu passaporte' : 'Digite o seu CPF'" 
+                    class="onboarding-search-input" 
+                  />
+                </div>
+                <span v-if="errors['comprador.cpf_cnpj']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['comprador.cpf_cnpj'] }}</span>
+              </div>
+
+              <!-- Data de nascimento -->
+              <div>
+                <label class="custom-select-label">Data de nascimento</label>
+                <div class="onboarding-search">
+                  <span class="onboarding-search-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                      <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                    </svg>
+                  </span>
+                  <input 
+                    v-model="comprador.nascimento" 
+                    required 
+                    type="date" 
+                    class="onboarding-search-input" 
+                  />
+                </div>
+                <span v-if="errors['comprador.nascimento']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['comprador.nascimento'] }}</span>
+              </div>
+
+              <!-- Telefone -->
+              <div>
+                <label class="custom-select-label">Telefone</label>
+                <div class="onboarding-search">
+                  <span class="onboarding-search-icon">
+                    <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                      <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                    </svg>
+                  </span>
+                  <input 
+                    v-model="comprador.telefone" 
+                    required 
+                    placeholder="Digite o seu número de telefone" 
+                    class="onboarding-search-input" 
+                  />
+                </div>
+                <span v-if="errors['comprador.telefone']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['comprador.telefone'] }}</span>
+              </div>
+            </div>
+
+            <!-- Endereço -->
+            <div class="tw-mt-6">
+              <div class="tw-flex tw-items-center tw-gap-2 tw-mb-4">
+                <div class="tw-bg-secondary tw-text-white tw-px-3 tw-py-1 tw-rounded-full tw-text-xs tw-font-bold">
+                  Endereço
+                </div>
+                <div class="tw-flex-1 tw-border-t-2 tw-border-gray-200"></div>
+              </div>
+
+              <!-- Campos para brasileiros -->
+              <div v-if="!comprador.estrangeiro" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+                <div>
+                  <label class="custom-select-label">CEP/Código Postal</label>
+                  <div class="onboarding-search">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.cep" 
+                      required 
+                      placeholder="Digite o seu CEP" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div v-if="!comprador.estrangeiro">
+                  <label class="custom-select-label">Bairro</label>
+                  <div class="onboarding-search">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.bairro" 
+                      required 
+                      placeholder="Digite o seu bairro" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div v-if="!comprador.estrangeiro">
+                  <label class="custom-select-label">Logradouro</label>
+                  <div class="onboarding-search">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.xlgr" 
+                      required 
+                      placeholder="Digite o seu logradouro" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div v-if="!comprador.estrangeiro">
+                  <label class="custom-select-label">Número</label>
+                  <div class="onboarding-search">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.nro" 
+                      required 
+                      placeholder="Digite o seu número" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Campos para estrangeiros -->
+              <div v-if="comprador.estrangeiro" class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 tw-gap-4">
+                <div>
+                  <label class="custom-select-label">CEP/Código Postal</label>
+                  <div class="onboarding-search !tw-my-3">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.cep" 
+                      required 
+                      placeholder="Digite o seu CEP" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="custom-select-label">País</label>
+                  <CustomSelect
+                      v-model="comprador.pais"
+                      label=""
+                      :searchable="true"
+                      placeholder="Selecione o país"
+                      :options="paises.map(p => ({ value: p.codigo, label: p.nome }))"
+                      :required="true"
+                      class="onboarding-search-input tw-bg-transparent tw-border-none"
+                    />
+                </div>
+
+                <div>
+                  <label class="custom-select-label">Estado/Província</label>
+                  <div class="onboarding-search !tw-my-3">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.estado" 
+                      required 
+                      placeholder="Digite o estado/província" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="custom-select-label">Cidade</label>
+                  <div class="onboarding-search !tw-my-3">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.cidade" 
+                      required 
+                      placeholder="Digite a cidade" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="custom-select-label">Endereço - Linha 1</label>
+                  <div class="onboarding-search !tw-my-3">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.linha1" 
+                      required 
+                      placeholder="Ex: Rua, número, apartamento" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label class="custom-select-label">Endereço - Linha 2 (opcional)</label>
+                  <div class="onboarding-search">
+                    <span class="onboarding-search-icon">
+                      <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+                        <path stroke="#A0AEC0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                      </svg>
+                    </span>
+                    <input 
+                      v-model="comprador.linha2" 
+                      placeholder="Ex: Complemento, referência" 
+                      class="onboarding-search-input" 
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" :disabled="loading" class="tw-bg-primary tw-text-white tw-w-full tw-py-3 tw-rounded-xl tw-font-bold tw-shadow hover:tw-bg-primary/90 disabled:tw-opacity-50 tw-transition tw-mt-6">
             <span v-if="!loading">Pagar com Cartão</span>
             <span v-else>Processando...</span>
           </button>
@@ -237,7 +536,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { formatCurrency, pacerls, gerarStringTiposComodos } from '@/js/utils'
 import CustomSelect from '../ui/CustomSelect.vue'
 import VueQrcode from 'vue-qrcode'
@@ -264,6 +563,29 @@ const cardData = ref({
   security_code: '',
   installment_quantity: 1
 })
+
+const comprador = ref({
+  xnome: '',
+  cpf_cnpj: '',
+  estrangeiro: false,
+  nascimento: null,
+  telefone: '',
+  xlgr: '',
+  nro: '',
+  bairro: '',
+  cep: '',
+  cidade: '',
+  estado: '',
+  pais: '',
+  linha1: '',
+  linha2: '',
+})
+
+const paises = ref([])
+const loadPaises = ref(false)
+
+// Adicionar objeto de erros
+const errors = ref({})
 
 const paymentOptions = [
   {
@@ -375,6 +697,11 @@ function submitPix() {
 }
 
 function submitCredit() {
+  if (!validateFormCredit()) {
+    window.$notify('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+    return;
+  }
+
   loading.value = true
   error.value = ''
   success.value = ''
@@ -383,6 +710,14 @@ function submitCredit() {
     credit_card: {
       ...cardData.value,
       card_number: cardData.value.card_number.replaceAll(' ', '')
+    },
+    comprador: {
+      ...comprador.value,
+      nascimento: comprador.value.nascimento ? 
+        (typeof comprador.value.nascimento === 'string' ? 
+          comprador.value.nascimento : 
+          comprador.value.nascimento.toISOString().split('T')[0]
+        ) : null
     }
   }).then(res => {
     window.$notify('Pagamento aprovado!', 'success')
@@ -436,7 +771,122 @@ function temRede(passagem_pedidos) {
   );
 }
 
+function getPaises() {
+  if (loadPaises.value) return;
+  
+  loadPaises.value = true;
+  fetch('https://restcountries.com/v3.1/all?fields=name,cca2').then((response) => {
+    return response.json();
+  }).then((data) => {
+    paises.value = data
+      .map(country => ({
+        codigo: country.cca2,
+        nome: country.name.common,
+        nomeOficial: country.name.official
+      }))
+      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+    loadPaises.value = false;
+  }).catch(error => {
+    console.error('Erro ao buscar países:', error);
+    loadPaises.value = false;
+  });
+}
+
+const validateFormCredit = () => {
+  let hasError = false;
+  const validateField = (field, value, errorMessage) => {
+    if (value === null || value === undefined || value === '') {
+      errors.value[field] = errorMessage;
+      hasError = true;
+    } else {
+      delete errors.value[field];
+    }
+  };
+
+  const validarNomeSobrenome = (nome) => {
+    return nome.split(" ").length > 1 || "Digite nome e sobrenome";
+  };
+
+  const validatePhone = (field, value) => {
+    const phone = value.replace(/\D/g, '');
+    const phoneRegex = /^[0-9]{10,11}$/; // Aceita 10 ou 11 dígitos numéricos
+
+    if (!phone) {
+      errors.value[field] = 'Por favor, insira um número de telefone.';
+      hasError = true;
+    } else if (!phoneRegex.test(phone)) {
+      errors.value[field] = 'O telefone deve conter apenas números e ter 10 ou 11 dígitos.';
+      hasError = true;
+    } else {
+      delete errors.value[field];
+    }
+  };
+
+  // Validação dos campos do cartão
+  validateField('credit_card.holder', cardData.value.holder, 'Por favor, insira seu nome que está no cartão.');
+  validateField('credit_card.card_number', cardData.value.card_number, 'Por favor, insira o número do cartão.');
+  validateField('credit_card.expiration_date', cardData.value.expiration_date, 'Por favor, insira a data de vencimento.');
+  validateField('credit_card.installment_quantity', cardData.value.installment_quantity, 'Por favor, insira a quantidade de parcelas.');
+  validateField('credit_card.security_code', cardData.value.security_code, 'Por favor, insira um código de validação.');
+
+  // Validação dos campos do comprador
+  validateField('comprador.xnome', comprador.value.xnome, 'Por favor, insira seu nome e sobrenome.');
+  validateField('comprador.cpf_cnpj', comprador.value.cpf_cnpj, comprador.value.estrangeiro ? 'Por favor, insira seu passaporte.' : 'Por favor, insira seu CPF.');
+  validateField('comprador.nascimento', comprador.value.nascimento, 'Por favor, insira sua data de nascimento.');
+  
+  // Validação de endereço diferente para estrangeiros
+  if (comprador.value.estrangeiro) {
+    // Para estrangeiros, campos básicos são obrigatórios
+    validateField('comprador.pais', comprador.value.pais, 'Por favor, insira o país.');
+    validateField('comprador.cidade', comprador.value.cidade, 'Por favor, insira a cidade.');
+    validateField('comprador.estado', comprador.value.estado, 'Por favor, insira o estado/província.');
+    validateField('comprador.linha1', comprador.value.linha1, 'Por favor, insira o endereço (linha 1).');
+  } else {
+    // Para brasileiros, todos os campos de endereço são obrigatórios
+    validateField('comprador.xlgr', comprador.value.xlgr, 'Por favor, insira o logradouro.');
+    validateField('comprador.bairro', comprador.value.bairro, 'Por favor, insira o bairro.');
+    validateField('comprador.cep', comprador.value.cep, 'Por favor, insira um CEP válido.');
+    validateField('comprador.nro', comprador.value.nro, 'Por favor, insira o número.');
+  }
+
+  // Validações específicas
+  if (cardData.value.card_number && cardData.value.card_number.length !== 16) {
+    errors.value['credit_card.card_number'] = 'O número do cartão deve ter exatamente 16 dígitos.';
+    hasError = true;
+  }
+
+  if (comprador.value.xnome && !validarNomeSobrenome(comprador.value.xnome)) {
+    errors.value['comprador.xnome'] = 'Digite nome e sobrenome';
+    hasError = true;
+  }
+
+  validatePhone('comprador.telefone', comprador.value.telefone);
+
+  return !hasError;
+};
+
+// Watcher para quando alternar entre brasileiro/estrangeiro
+watch(() => comprador.value.estrangeiro, (newValue) => {
+  if (newValue) {
+    // Se virou estrangeiro, limpa campos específicos do Brasil
+    comprador.value.cep = '';
+    comprador.value.bairro = '';
+    comprador.value.xlgr = '';
+    comprador.value.nro = '';
+    // Busca países disponíveis
+    getPaises();
+  } else {
+    // Se virou brasileiro, limpa campos de estrangeiro
+    comprador.value.cidade = '';
+    comprador.value.estado = '';
+    comprador.value.pais = '';
+    comprador.value.linha1 = '';
+    comprador.value.linha2 = '';
+  }
+});
+
 onMounted(() => {
+  getPaises();
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && paymentPending.value) {
       checkStatusPayment()

@@ -403,6 +403,8 @@ function handleInsertData(){
         }
         formSale.processing = false
     }).catch(error=>{
+        console.log(error)
+        window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message,'error');
         formSale.processing = false
     })
 }

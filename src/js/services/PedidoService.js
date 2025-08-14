@@ -9,6 +9,6 @@ export const PedidoService = {
   confirm: (order_id, params = {}) => api.post(`api/pedidos/${order_id}/gerar-passagens`, params),
   sendPassenger: (order_id) => api.get(`api/pedidos/exportar-de-pedido/${order_id}/enviar-contato`),
   paymentPix: (params = {}) => api.post('api/pagamentos/pix', params),
-  paymentCredito: (params = {}) => api.post('/pagamentos/credito', params),
+  paymentCredito: (params = {}) => api.post('api/pagamentos/credito', params),
   paymentStatus: (order_id) => api.get(`api/pedidos/${order_id}/status`),
 };
