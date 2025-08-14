@@ -153,7 +153,7 @@
                 <span class="onboarding-search-icon">
                   <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="#A0AEC0" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="#A0AEC0"/></svg>
                 </span>
-                <input v-model="cardData.security_code" required type="text" pattern="\d{4}" maxlength="4"  placeholder="CVV" class="onboarding-search-input" />
+                <input v-model="cardData.security_code" required type="text" pattern="\d{3,4}" minlength="3" maxlength="4"  placeholder="CVV" class="onboarding-search-input" />
               </div>
               <span v-if="errors['credit_card.security_code']" class="tw-text-red-500 tw-text-sm tw-mt-1">{{ errors['credit_card.security_code'] }}</span>
             </div>
