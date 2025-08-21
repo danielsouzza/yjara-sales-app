@@ -690,7 +690,7 @@ function submitPix() {
     startTimer()
     checkStatusPayment()
   }).catch((error) => {
-    console.log(erro)
+    console.log(error)
     window.$notify(error.response?.data?.data?.details ?? error.response?.data?.data?.error ?? error.response?.data?.message, 'error')
     loading.value = false
   })
