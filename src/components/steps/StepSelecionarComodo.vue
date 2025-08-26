@@ -40,7 +40,7 @@
         <!-- Grid de cômodos -->
         <div class="tw-bg-gray-50 tw-rounded-xl tw-shadow-inner tw-py-4 tw-mb-6">
           <!-- Mantém o grid/Boat existente -->
-          <Boat v-if="matrizRooms?.length > 0" class="tw-mb-4 tw-px-2">
+          <Boat v-if="matrizRooms?.length > 0 && !viagem.poltrona_livre" class="tw-mb-4 tw-px-2">
             <div
               :style="generateLayout()"
               class="tw-h-full"
@@ -61,6 +61,58 @@
             <div class="tw-grid tw-grid-cols-1 md:tw-grid-cols-2 lg:tw-grid-cols-3 tw-gap-4 tw-px-4">
               <template v-for="item in viagem.tipos_comodos">
                 <div v-if="item.id !== 4 && item.id !== 1" :key="item.id" class="tw-col-span-12 md:tw-col-span-6 lg:tw-col-span-4">
+                  <div
+                    class="tw-bg-white tw-rounded-lg tw-shadow-md tw-border-4 tw-border-blue-400 tw-cursor-pointer tw-transition-all"
+                    :class="roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade > 0 ? 'hover:tw-shadow-lg' : 'tw-opacity-50 tw-cursor-not-allowed'"
+                    @click="roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade > 0 ? onClickRoom(null, item.id) : ''"
+                  >
+                    <div class="tw-p-3 tw-rounded " :class="roomsSelected.selectedsByType?.find(it=>item.id == it.type_comodo_id)?.quantidade > 0 ? '!tw-bg-yellow-400' : roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade === 0 ? '!tw-bg-blue-400 tw-text-white' : '!tw-bg-green-500 tw-text-white'">
+                      <div class="tw-grid tw-grid-cols-12">
+                        <div class="tw-col-span-8 tw-text-xs">
+                          {{item.nome}}
+                        </div>
+                        <div class="tw-col-span-4 tw-text-sm tw-flex tw-items-center tw-justify-end">
+                          <f7-icon f7="person" width="15" class="mr-1" />{{roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade}}
+                        </div>
+                        <div class="tw-col-span-6 tw-text-xs !tw-pt-0">
+                          Valor
+                        </div>
+                        <div class="tw-col-span-6 tw-text-right tw-text-sm tw-font-semibold !tw-pt-0">
+                          {{formatCurrency(calcularValor(valor, viagem.desconto?.desconto))}}<br>
+                          <span class="tw-text-[10px]"> no PIX</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </template>
+              <template v-if="viagem.poltrona_livre" v-for="item in viagem.tipos_comodos">
+                <!-- Alerta Poltrona Livre -->
+                <div v-if="item.id == 1" class="tw-col-span-12 tw-mb-4">
+                  <div class="tw-bg-blue-50 tw-border-l-4 tw-border-blue-400 tw-p-4 tw-rounded-lg">
+                    <div class="tw-flex tw-items-start">
+                    
+                      <div class="tw-ml-3">
+                        <h3 class="tw-text-sm tw-font-medium tw-text-blue-800">
+                          Atenção: Poltrona Livre
+                        </h3>
+                        <div class="tw-mt-2 tw-text-sm tw-text-blue-700">
+                          <p class="tw-mb-2">
+                            Nesta viagem, os assentos são na modalidade Poltrona Livre.
+                          </p>
+                          <p class="tw-mb-2">
+                            Isso significa que não é possível escolher o assento antecipadamente.
+                          </p>
+                          <p>
+                            O passageiro poderá se sentar em qualquer poltrona disponível no momento do embarque.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div v-if="item.id == 1" :key="item.id" class="tw-col-span-12 ">
                   <div
                     class="tw-bg-white tw-rounded-lg tw-shadow-md tw-border-4 tw-border-blue-400 tw-cursor-pointer tw-transition-all"
                     :class="roomsFree.find(it=>it.tipo_comodidade_id === item.id)?.quantidade > 0 ? 'hover:tw-shadow-lg' : 'tw-opacity-50 tw-cursor-not-allowed'"
@@ -207,7 +259,7 @@ const roomsSelected = ref({
   })
 
 const hasCamarotesAndRede = computed(() => {
-    return props.viagem.tipos_comodos.some((item)=> item.id >= 2 && item.id <=4)
+    return props.viagem.tipos_comodos.some((item)=> item.id >= 2 && item.id <=4)  || props.viagem.poltrona_livre
 })
 
 const valor = computed(()=>{
