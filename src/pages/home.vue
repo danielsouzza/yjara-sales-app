@@ -46,7 +46,7 @@
           <QuickDateSelector
           v-model="form.data"
           :min-date="minDate"
-          @select="carregarViagens"
+          @select="()=>carregarViagens()"
         />
           <!-- Loading -->
           <div v-if="loading" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-8">
@@ -63,7 +63,25 @@
 
           <!-- Mensagem de não encontrado -->
           <div v-else-if="viagens.trechos?.data?.length === 0 && !showOnboarding" class="tw-flex tw-flex-col tw-items-center tw-justify-center tw-py-8 ">
-            <div class="tw-bg-gray-50 tw-rounded-2xl tw-p-6 tw-text-center tw-max-w-sm">
+            <!-- Se tem próxima viagem disponível -->
+            <div v-if="nextTravel" class="tw-bg-blue-50 tw-rounded-2xl tw-p-6 tw-text-center tw-max-w-sm tw-border tw-border-blue-200">
+              <svg class="tw-w-16 tw-h-16 tw-mx-auto tw-text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h3 class="tw-mt-4 tw-text-lg tw-font-medium tw-text-blue-900">Nenhuma viagem encontrada para esta data</h3>
+              <p class="tw-mt-2 tw-text-sm tw-text-blue-700">
+                A próxima viagem disponível será no dia {{ formatDate(nextTravel.data_embarque) }} às {{ formatarHora(nextTravel.horario) }}
+              </p>
+              <button
+                @click="goToNextTrip"
+                class="tw-mt-4 tw-bg-blue-600 tw-text-white tw-px-6 tw-py-2 tw-rounded-xl tw-font-medium tw-shadow hover:tw-bg-blue-700 tw-transition"
+              >
+                Ir para próxima viagem
+              </button>
+            </div>
+            
+            <!-- Se não tem próxima viagem -->
+            <div v-else class="tw-bg-gray-50 tw-rounded-2xl tw-p-6 tw-text-center tw-max-w-sm">
               <svg class="tw-w-16 tw-h-16 tw-mx-auto tw-text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
@@ -179,7 +197,7 @@ import StepEscolherViagem from '@/components/steps/StepEscolherViagem.vue';
 import StepSelecionarComodo from '@/components/steps/StepSelecionarComodo.vue';
 import StepInsertData from '@/components/steps/StepInsertData.vue';
 import StepPagamento from '@/components/steps/StepPagamento.vue'
-import { formatMoney, formatDate } from '@/js/utils';
+import { formatMoney, formatDate, formatarHora } from '@/js/utils';
 import CustomSelect from '@/components/ui/CustomSelect.vue';
 import DateSelectCustom from '@/components/ui/DateSelectCustom.vue';
 import Onboarding from '@/components/Onboarding.vue';
@@ -200,6 +218,7 @@ const municipiosDestino = ref([]);
 const loading = ref(false);
 const orderResponse = ref(null)
 const error = ref(null);
+const nextTravel = ref(null);
 const minDate = ref(new Date(new Date().setHours(0,0,0,0)));
 const formSale = reactive({
     trecho:null,
@@ -260,22 +279,48 @@ function formSaleReset(){
 }
 
 
-const carregarViagens = async () => {
-  step.value = 1;
-  formSaleReset()
+const carregarViagens = async (nextTrip = false) => {
+  if (!nextTrip) {
+    step.value = 1;
+    formSaleReset();
+    nextTravel.value = null;
+  }
+  
   loading.value = true;
   error.value = null;
   
   try {
-    const response = await ViagemService.getTrechosViagem({
-      porto: form.porto || null, // permite null
-      destino: form.municipioDestino || null, // permite null
+    const params = {
+      porto: form.porto || null,
+      destino: form.municipioDestino || null,
       data_hora: form.data ? formatDate(form.data) : '',
-      quantia: form.quantia
-    });
-    viagens.value = response.data.data;
+      quantia: nextTrip ? 1 : form.quantia
+    };
+    
+    if (nextTrip) {
+      params.data_irrestrita = 1;
+    }
+
+    const response = await ViagemService.getTrechosViagem(params);
+    
+    if (nextTrip) {
+      // Se está buscando próxima viagem e encontrou
+      if (response.data.data.trechos?.data?.length > 0) {
+        nextTravel.value = response.data.data.trechos.data[0];
+      }
+    } else {
+      // Se é busca normal
+      viagens.value = response.data.data;
+      
+      // Se não encontrou viagens, busca próxima disponível
+      if (response.data.data.trechos?.data?.length === 0) {
+        await carregarViagens(true); // Busca próxima viagem
+      }
+    }
   } catch (err) {
-    error.value = 'Erro ao carregar viagens. Tente novamente.';
+    if (!nextTrip) {
+      error.value = 'Erro ao carregar viagens. Tente novamente.';
+    }
   } finally {
     loading.value = false;
   }
@@ -449,6 +494,14 @@ function abrirFiltros() {
   draftFilters.municipioDestino = form.municipioDestino;
   draftFilters.data = form.data;
   showFilters.value = true;
+}
+
+function goToNextTrip() {
+  if (nextTravel.value) {
+    form.data = new Date(nextTravel.value.data_embarque);
+    nextTravel.value = null;
+    carregarViagens();
+  }
 }
 
 async function carregarTema() {
