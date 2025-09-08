@@ -372,7 +372,7 @@ function populateComodos(rooms, trecho) {
 
   rooms.forEach(item => {
     const baseComodo = {
-      tipo_doc: null,
+      tipo_doc: 5,
       nome: '',
       document: '',
       nascimento: null,
